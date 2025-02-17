@@ -58,7 +58,6 @@ void process_completed_lines(byte lowRow, byte highRow) {
   for (int row = lowRow; row <= highRow; row++) {
     for (int col = 0; col < 8; col++) {
       if (ledStates[led_map[row][col]] == 0) break;
-      
       if (col == 7) {
         completeRows[completeRowsCount] = row;
         completeRowsCount++;

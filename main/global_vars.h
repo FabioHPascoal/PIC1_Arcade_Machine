@@ -5,6 +5,11 @@
 #include <Arduino.h>
 #include "aux_functions.h"
 
+typedef struct{
+  unsigned char row;
+  unsigned char col;
+}tPosition;
+
 enum Direction {DOWN, UP, LEFT, RIGHT};
 
 ///////////////////// GENERAL VARIABLES /////////////////////
@@ -12,6 +17,10 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
 // CONSTANTS
   const float BRIGHTNESS = 0.01;
   const int NUM_PIXELS = 256;
+
+  // Lenth Constants
+  const unsigned char matrixNumCol = 8;
+  const unsigned char matrixNumRow = 32;
   
   // Pins
   const byte leftStick = 12;
@@ -31,6 +40,8 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
   const uint32_t cyan    = adjustBrightness(0, 255, 255, BRIGHTNESS);
   const uint32_t magenta = adjustBrightness(255, 0, 255, BRIGHTNESS);
   const uint32_t orange  = adjustBrightness(255, 120, 0, BRIGHTNESS);
+  const uint32_t gray    = adjustBrightness(36, 36, 36, BRIGHTNESS);
+  const uint32_t emerald = adjustBrightness(4, 99, 7, BRIGHTNESS);
 
   // Lookup Tables
 
@@ -95,7 +106,7 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
   inline unsigned long lastMovementTime = 0;
 
 // CONSTANTS
-  const uint32_t tetrominoColors[8] = {black,yellow,cyan,blue,orange,green,red,magenta};
+  const uint32_t tetrominoColors[10] = {black,yellow,cyan,blue,orange,green,red,magenta,gray,emerald};
 
   // Time constants
   
@@ -126,3 +137,12 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
   };
 
 #endif
+
+///////////////////// FROGGER VARIABLES /////////////////////4
+
+// GLOBAL VARIABLES
+  bool streetMode;
+  tPosition frogPosition;
+
+// CONSTANTS
+  
