@@ -144,5 +144,11 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
   bool streetMode;
   tPosition frogPosition;
 
+  // Time variables
+
+  unsigned long lastMovementTimeFrogger = 0;
+  unsigned char movementIntervalFrogger = 40;
+
 // CONSTANTS
   
+// Time constants
