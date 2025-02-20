@@ -23,23 +23,104 @@ void drawTerrain(){
   }
 }
 
-void initializeFrog{
+void initializeFrog(){
+  frogPosition.row = (matrixNumRow/2) - 1;
+  frogPosition.col = 0;
+  pixels.setPixelColor(led_map[frogPosition.row][frogPosition.col], green);
+}
+
+void beginTimeVariables(){
+  lastMovementTimeFrogger = milis() - movementIntervalFrogger;
+}
+
+bool verficaColisaoEsquerda(){
+  if(frogPosition.row == 0)
+    return true;
+  return false;
+}
+
+bool verficaColisaoDireita(){
+  if(frogPosition.row == matrixNumRow -1)
+    return true;
+  return false;
+}
+
+bool verficaColisaoInferior(){
+  if(frogPosition.col == 0)
+    return true;
+  return false;
+}
+
+bool verficaColisaoSuperior(){
+  if(frogPosition.col == matrixNumCol -1)
+    return true;
+  return false;
+}
+
+void moveFrog(char direction, char value){
+  if(direction == 'V')
+    frogPosition.col+= value;
+  else if(direction == 'H')
+    frogPosition.row+= value;
 
 }
 
-beginTimeVariables(){
-  lastMovementTime = milis() - movementIntervalFrogger;
+void ReposicionaFrog(){
+  frogPosition.col = 0;
 }
 
-frog_movement(){
+void changeGameMode(){
+  streetMode = !streetMode;
+}
 
+void NewGame(){
+  if(streetMode){
+    // redesenhar a rua e posicionar os carros da rua
+  }else{
+    // redesenhar o rio e posicionar os troncos do rio
+  }
+}
+
+void frog_movement(){
+  leftState = !digitalRead(downStick);
+  rightState = !digitalRead(upStick);
+  downState = !digitalRead(rightStick);
+  upState = !digitalRead(leftStick);
+
+  if (leftState){
+    if(!verficaColisaoEsquerda()){
+      moveFrog('H',-1);
+    }
+  }
+
+  if (rightState){
+    if(!verficaColisaoDireita()){
+      moveFrog('H',1);
+    }
+  }
+
+  if (downState){
+    if(!verficaColisaoInferior()){
+      moveFrog('V',-1);
+    }
+  }
+
+  if (upState){
+    if(verficaColisaoSuperior()){
+      ReposicionaFrog();
+      changeGameMode();
+      NewGame();
+    }else{
+      moveFrog('V',1);
+    }
+  }
 }
 
 void froggerSetup(){
   streetMode = true; // definicao do primeiro mapa como a rua
   drawTerrain();
-  //posicionar sapo
-  // posicionar carros
+  initializeFrog();
+  carsPosition();
   beginTimeVariables();
 }
 

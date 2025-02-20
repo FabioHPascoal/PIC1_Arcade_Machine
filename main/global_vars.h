@@ -5,10 +5,10 @@
 #include <Arduino.h>
 #include "aux_functions.h"
 
-typedef struct{
+struct Position{
   unsigned char row;
   unsigned char col;
-}tPosition;
+};
 
 enum Direction {DOWN, UP, LEFT, RIGHT};
 
@@ -42,6 +42,7 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
   const uint32_t orange  = adjustBrightness(255, 120, 0, BRIGHTNESS);
   const uint32_t gray    = adjustBrightness(36, 36, 36, BRIGHTNESS);
   const uint32_t emerald = adjustBrightness(4, 99, 7, BRIGHTNESS);
+  const uint32_t brown = adjustBrightness(150, 75, 0, BRIGHTNESS);
 
   // Lookup Tables
 
@@ -106,7 +107,7 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
   inline unsigned long lastMovementTime = 0;
 
 // CONSTANTS
-  const uint32_t tetrominoColors[10] = {black,yellow,cyan,blue,orange,green,red,magenta,gray,emerald};
+  const uint32_t tetrominoColors[11] = {black,yellow,cyan,blue,orange,green,red,magenta,gray,emerald,brown};
 
   // Time constants
   
@@ -142,13 +143,12 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
 
 // GLOBAL VARIABLES
   bool streetMode;
-  tPosition frogPosition;
+  struct Position frogPosition;
 
   // Time variables
 
-  unsigned long lastMovementTimeFrogger = 0;
+  unsigned long lastMovementTimeFrogger;
   unsigned char movementIntervalFrogger = 40;
+  unsigned char 
 
 // CONSTANTS
-  
-// Time constants
