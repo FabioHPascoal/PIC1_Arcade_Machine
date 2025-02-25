@@ -1,13 +1,31 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <Adafruit_NeoPixel.h>
-#include <Arduino.h>
+//#include <Adafruit_NeoPixel.h>
+//#include <Arduino.h>
 #include "aux_functions.h"
 
 struct Position{
   unsigned char row;
   unsigned char col;
+};
+
+struct frogger{
+  struct Position posAtual;
+  unsigned char posMaxY = 0;
+  unsigned long lastMovementTimeFrogger;
+  unsigned char movementIntervalFrogger = 40;
+};
+
+struct faixaTroncoOuRua{
+  bool type; //rua ou rio
+  bool direction; //false = esquerda e true = direita
+  unsigned char tamElements; //tamanho dos veiculos ou troncos na linha
+  unsigned char space; //espaco entre os carros ou troncos da linha
+  unsigned short speed; //velocidade dos carros ou troncos em leds por segundo
+  const uint32_t cor; //cor dos carros ou troncos da linha
+  unsigned long lastMovementTime;
+  unsigned char verificadorDeContinuidade;
 };
 
 enum Direction {DOWN, UP, LEFT, RIGHT};
@@ -42,7 +60,7 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
   const uint32_t orange  = adjustBrightness(255, 120, 0, BRIGHTNESS);
   const uint32_t gray    = adjustBrightness(36, 36, 36, BRIGHTNESS);
   const uint32_t emerald = adjustBrightness(4, 99, 7, BRIGHTNESS);
-  const uint32_t brown = adjustBrightness(150, 75, 0, BRIGHTNESS);
+  const uint32_t brown   = adjustBrightness(150, 75, 0, BRIGHTNESS);
 
   // Lookup Tables
 
@@ -117,13 +135,13 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
   // Lookup Tables
 
   const byte tetrominoSpawnLocation[7][4][2] = {
-    { {0, 3}, {0, 4}, {1, 3}, {1, 4}},
-    { {1, 2}, {1, 3}, {1, 4}, {1, 5}},
-    { {0, 2}, {1, 2}, {1, 3}, {1, 4}},
-    { {0, 4}, {1, 2}, {1, 3}, {1, 4}},
-    { {0, 3}, {0, 4}, {1, 2}, {1, 3}},
-    { {0, 2}, {0, 3}, {1, 3}, {1, 4}},
-    { {0, 3}, {1, 2}, {1, 3}, {1, 4}},
+    {{0, 3}, {0, 4}, {1, 3}, {1, 4}},
+    {{1, 2}, {1, 3}, {1, 4}, {1, 5}},
+    {{0, 2}, {1, 2}, {1, 3}, {1, 4}},
+    {{0, 4}, {1, 2}, {1, 3}, {1, 4}},
+    {{0, 3}, {0, 4}, {1, 2}, {1, 3}},
+    {{0, 2}, {0, 3}, {1, 3}, {1, 4}},
+    {{0, 3}, {1, 2}, {1, 3}, {1, 4}},
   };
 
   // Order: tetramino number -> rotation position -> relative increment pair -> increment value in one direction
@@ -137,18 +155,16 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
   {{{1,1}, {-1,1}, {0,0}, {1,-1}},    {{1,-1}, {1,1}, {0,0}, {-1,-1}},    {{-1,-1}, {1,-1}, {0,0}, {-1,1}},    {{-1,1}, {-1,-1}, {0,0}, {1,1}}}
   };
 
-#endif
-
 ///////////////////// FROGGER VARIABLES /////////////////////4
 
 // GLOBAL VARIABLES
   bool streetMode;
-  struct Position frogPosition;
-
-  // Time variables
-
-  unsigned long lastMovementTimeFrogger;
-  unsigned char movementIntervalFrogger = 40;
-  unsigned char 
+  struct frogger frog;
+  struct faixaTroncoOuRua street[6];
+  struct faixaTroncoOuRua river[6];
+  uint32_t matrixMapStreet[32][8];
+  uint32_t matrixMapRiver[32][8];
 
 // CONSTANTS
+
+#endif
