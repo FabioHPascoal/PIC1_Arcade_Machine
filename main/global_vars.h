@@ -23,7 +23,7 @@ struct faixaTroncoOuRua{
   unsigned char tamElements; //tamanho dos veiculos ou troncos na linha
   unsigned char space; //espaco entre os carros ou troncos da linha
   unsigned short speed; //velocidade dos carros ou troncos em leds por segundo
-  const uint32_t cor; //cor dos carros ou troncos da linha
+  uint32_t cor; //cor dos carros ou troncos da linha
   unsigned long lastMovementTime;
   unsigned char verificadorDeContinuidade;
 };

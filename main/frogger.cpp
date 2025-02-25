@@ -65,14 +65,6 @@ void changeGameMode(){
   streetMode = !streetMode;
 }
 
-void NewGame(){
-  if(streetMode){
-    // redesenhar a rua e posicionar os carros da rua
-  }else{
-    // redesenhar o rio e posicionar os troncos do rio
-  }
-}
-
 void frog_movement(){
   leftState = !digitalRead(downStick);
   rightState = !digitalRead(upStick);
@@ -101,9 +93,13 @@ void frog_movement(){
     if(verficaColisaoSuperior()){
       ReposicionaFrog();
       changeGameMode();
-      NewGame();
+      score += 200;
     }else{
       moveFrog('V',1);
+      if(frog.posMaxY < frog.posAtual.col){
+        score += 10;
+        frog.posMaxY = frog.posAtual.col;
+      }
     }
   }
 }
@@ -198,7 +194,7 @@ void defineMatrixFaixa(){
     river[0].cor = brown;
 }
 
-bool verificaAdicaoDeElemento(struct faixaTroncoOuRua faixa, char col, const uint32_t **matrixMap){
+bool verificaAdicaoDeElemento(struct faixaTroncoOuRua faixa, char col, uint32_t **matrixMap){
   if(faixa.verificadorDeContinuidade != 0){
     return true;
   }
@@ -232,9 +228,14 @@ bool verificaSePodeAndar(struct faixaTroncoOuRua *faixas, char col, char divisor
   return false;
 }
 
-void MoveFaixa(struct faixaTroncoOuRua *faixas, char col, const uint32_t **matrixMap, char type){
+void MoveFaixa(struct faixaTroncoOuRua *faixas, char col, uint32_t **matrixMap, char type){
   if(faixas[col].direction){ //se for pra direita
     for(int row=31; row>=0; row--){
+      if(type!='s'){
+        if(frog.posAtual.col == col+1 && frog.posAtual.row != 31)
+          frog.posAtual.row++;
+      }
+
       if(row==0){
         if(type=='s')
           matrixMap[row][col+1] = gray;
@@ -245,6 +246,11 @@ void MoveFaixa(struct faixaTroncoOuRua *faixas, char col, const uint32_t **matri
     }
   }else{
     for(int row=0; row<32; row++){ //se for para esquerda
+      if(type!='s'){
+        if(frog.posAtual.col == col+1 && frog.posAtual.row != 0)
+          frog.posAtual.row--;
+      }
+
       if(row==31){
         if(type=='s')
           matrixMap[row][col+1] = gray;
@@ -256,7 +262,7 @@ void MoveFaixa(struct faixaTroncoOuRua *faixas, char col, const uint32_t **matri
   }
 }
 
-void AdicionaElemento(struct faixaTroncoOuRua *faixas, char col, const uint32_t **matrixMap){
+void AdicionaElemento(struct faixaTroncoOuRua *faixas, char col, uint32_t **matrixMap){
   if(faixas[col].direction)
     matrixMap[0][col+1] = faixas[col].cor;
   else
@@ -268,7 +274,6 @@ void AdicionaElemento(struct faixaTroncoOuRua *faixas, char col, const uint32_t 
 }
 
 void prepareTerrain(){
-  bool fristTime = true;
   char cont = 0;
   while(true){
     for(int col=0; col<6; col++){
@@ -306,8 +311,61 @@ void prepareTerrain(){
     if(matrixMapStreet[0][3]==street[2].cor){
       break;
     }
-    i++;
+    cont++;
   }
+}
+
+void drawOnLedMap(uint32_t **matrixMap){
+  for(int row=0; row<32; row++){
+    for(int col=0; col<8; col++){
+      pixels.setPixelColor(led_map[row][col], matrixMap[row][col]);
+    }
+  }
+}
+
+void movimentacoes(struct faixaTroncoOuRua *faixa, unsigned char type, uint32_t **matrixMap){
+  for(int col=0; col<6; col++){
+    if(verificaSePodeAndar(faixa, col, 1)){ //geral
+      if(verificaAdicaoDeElemento(faixa[col], col, matrixMap)){
+        MoveFaixa(faixa, col, matrixMap, type);
+        AdicionaElemento(faixa, col, matrixMap);
+      }else{
+        MoveFaixa(faixa, col, matrixMap, type);
+      }
+    }
+  }
+}
+
+bool frogCanMove(){
+  unsigned long currentTime = millis();
+
+  if (currentTime - frog.lastMovementTimeFrogger >= frog.movementIntervalFrogger) {
+    return true;
+  }
+
+  return false;
+}
+
+bool verificaDerrota(bool streetMode){
+  if(streetMode){
+    for(int row=0; row<32; row++){
+      for(int col=1; col<7; col++){
+        if(matrixMapStreet[row][col] != gray && ((frog.posAtual.row == row)&&(frog.posAtual.col == col))){
+          return true;
+        }
+      }
+    }
+  }else{
+    for(int row=0; row<32; row++){
+      for(int col=1; col<7; col++){
+        if(matrixMapRiver[row][col] == blue && ((frog.posAtual.row == row)&&(frog.posAtual.col == col))){
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 }
 
 void froggerSetup(){
@@ -317,23 +375,31 @@ void froggerSetup(){
   defineMatrixFaixa();
   prepareTerrain();
   beginTimeVariables();
+  drawOnLedMap(matrixMapStreet);
+  score = 0;
 }
 
 void froggerLoop(){
-
-  //adicionar os dois modos de jogo
+  pixels.show();
   if(streetMode){
-    // jogo para o asfalto
+    movimentacoes(street, 's', matrixMapStreet);
   }else{
-    // jogo para o rio
+    movimentacoes(river, 'r', matrixMapRiver);
   }
-  // verificar as funções abaixo para ver o melhor posicinamento delas no código
-  // unsigned long currentTime = millis();
 
-  // if (currentTime - lastMovementTimeFrogger >= movementIntervalFrogger) {
-  //   frog_movement();
-  //   lastMovementTimeFrogger = currentTime;
-  // }
+  if(frogCanMove()){
+    frog_movement();
+    frog.lastMovementTimeFrogger = millis();
+  }
 
-  // pixels.show();
+  if(verificaDerrota(streetMode)){
+    //printar derrota
+    for(char i=frog.posAtual.row-1; i<=frog.posAtual.row+1; i++){
+      for(char j=frog.posAtual.col-1; j<=frog.posAtual.col+1; j++)
+      pixels.setPixelColor(led_map[i][j], red);
+    }
+    pixels.show();
+    delay(3000);
+    froggerSetup();
+  }
 }
