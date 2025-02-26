@@ -2,5 +2,6 @@
 #define FROGGER_H
 
 void froggerLoop();
+void froggerSetup();
 
 #endif

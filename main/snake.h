@@ -2,5 +2,6 @@
 #define SNAKE_H
 
 void snakeLoop();
+void snakeSetup();
 
 #endif

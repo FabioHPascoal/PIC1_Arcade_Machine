@@ -6,7 +6,7 @@ bool check_collision(int rowInc, int colInc) {
     int row = fallingPiecePixels[pixel][0] + rowInc;
     int col = fallingPiecePixels[pixel][1] + colInc;
 
-    if (row < 0 || col < 0 || row >= 32 || col >= 8 || ledStates[led_map[row][col]] != 0) {
+    if (row < 0 || col < 0 || row >= 32 || col >= 8 || ledStates[pgm_read_byte(&led_map[row][col])] != 0) {
       return true;
     }
   }
@@ -27,7 +27,7 @@ void move_tetromino(Direction direction) {
     byte row = fallingPiecePixels[i][0];
     byte col = fallingPiecePixels[i][1];
 
-    pixels.setPixelColor(led_map[row][col], black);
+    pixels.setPixelColor(pgm_read_byte(&led_map[row][col]), black);
   }
 
   // Draw tetramino on new position
@@ -35,7 +35,7 @@ void move_tetromino(Direction direction) {
     byte row = fallingPiecePixels[i][0] + rowInc;
     byte col = fallingPiecePixels[i][1] + colInc;
     
-    pixels.setPixelColor(led_map[row][col], tetrominoColors[tetrominoNum]);
+    pixels.setPixelColor(pgm_read_byte(&led_map[row][col]), colors[tetrominoNum]);
 
     fallingPiecePixels[i][0] = row;
     fallingPiecePixels[i][1] = col;
@@ -44,8 +44,8 @@ void move_tetromino(Direction direction) {
 
 void clear_row(int row) {
   for (int col = 0; col < 8; col++) {
-    pixels.setPixelColor(led_map[row][col], tetrominoColors[0]);
-    ledStates[led_map[row][col]] = tetrominoColors[0];
+    pixels.setPixelColor(pgm_read_byte(&led_map[row][col]), colors[0]);
+    ledStates[pgm_read_byte(&led_map[row][col])] = colors[0];
   }
 }
 
@@ -57,7 +57,7 @@ void process_completed_lines(byte lowRow, byte highRow) {
   // Check for completed rows
   for (int row = lowRow; row <= highRow; row++) {
     for (int col = 0; col < 8; col++) {
-      if (ledStates[led_map[row][col]] == 0) break;
+      if (ledStates[pgm_read_byte(&led_map[row][col])] == 0) break;
       
       if (col == 7) {
         completeRows[completeRowsCount] = row;
@@ -73,6 +73,9 @@ void process_completed_lines(byte lowRow, byte highRow) {
 
   if (completeRowsCount > 0) {
     delay(500);
+
+    score += completeRowsCount * 8;
+
     byte rowShift = 1;
     for (byte row = completeRows[completeRowsCount - 1] - 1; row > 2; row--) {
       if (row == completeRows[completeRowsCount - rowShift - 1] && rowShift < completeRowsCount) {
@@ -81,9 +84,9 @@ void process_completed_lines(byte lowRow, byte highRow) {
       }
 
       for (int col = 0; col < 8; col++) {
-        uint32_t color = tetrominoColors[ledStates[led_map[row][col]]];
-        pixels.setPixelColor(led_map[row + rowShift][col], color);
-        ledStates[led_map[row + rowShift][col]] = ledStates[led_map[row][col]];
+        uint32_t color = colors[ledStates[pgm_read_byte(&led_map[row][col])]];
+        pixels.setPixelColor(pgm_read_byte(&led_map[row + rowShift][col]), color);
+        ledStates[pgm_read_byte(&led_map[row + rowShift][col])] = ledStates[pgm_read_byte(&led_map[row][col])];
       }
 
       clear_row(row);
@@ -104,7 +107,7 @@ void descend_tetromino() {
       byte row = fallingPiecePixels[i][0];
       byte col = fallingPiecePixels[i][1];
 
-      ledStates[led_map[row][col]] = tetrominoNum;
+      ledStates[pgm_read_byte(&led_map[row][col])] = tetrominoNum;
 
       if (row > highRow) highRow = row;
       if (row < lowRow) lowRow = row;
@@ -117,15 +120,16 @@ void descend_tetromino() {
 }
 
 void new_tetromino() {
+
   tetrominoNum = random(1, 8);
   for (byte i = 0; i < 4; i++) {
-    byte row = tetrominoSpawnLocation[tetrominoNum - 1][i][0];
-    byte col = tetrominoSpawnLocation[tetrominoNum - 1][i][1];
+    byte row = pgm_read_byte(&tetrominoSpawnLocation[tetrominoNum - 1][i][0]);
+    byte col = pgm_read_byte(&tetrominoSpawnLocation[tetrominoNum - 1][i][1]);
 
     fallingPiecePixels[i][0] = row;
     fallingPiecePixels[i][1] = col;
 
-    pixels.setPixelColor(led_map[row][col], tetrominoColors[tetrominoNum]);
+    pixels.setPixelColor(pgm_read_byte(&led_map[row][col]), colors[tetrominoNum]);
   }
   falling = true;
   currentRotation = 0;
@@ -133,10 +137,10 @@ void new_tetromino() {
 
 bool check_rotation_collision(Direction direction) {
   for (byte pixel = 0; pixel < 4; pixel++) {
-    int row = fallingPiecePixels[pixel][0] + tetrominoRotations[tetrominoNum-1][currentRotation][pixel][0];
-    int col = fallingPiecePixels[pixel][1] + tetrominoRotations[tetrominoNum-1][currentRotation][pixel][1];
+    int row = fallingPiecePixels[pixel][0] + (char)pgm_read_byte(&tetrominoRotations[tetrominoNum-1][currentRotation][pixel][0]);
+    int col = fallingPiecePixels[pixel][1] + (char)pgm_read_byte(&tetrominoRotations[tetrominoNum-1][currentRotation][pixel][1]);
 
-    if (row < 0 || col < 0 || row >= 32 || col >= 8 || ledStates[led_map[row][col]] != 0) {
+    if (row < 0 || col < 0 || row >= 32 || col >= 8 || ledStates[pgm_read_byte(&led_map[row][col])] != 0) {
       return true;
     }
   }
@@ -149,17 +153,17 @@ void rotate_tetromino(Direction direction) {
     byte row = fallingPiecePixels[pixel][0];
     byte col = fallingPiecePixels[pixel][1];
 
-    pixels.setPixelColor(led_map[row][col], tetrominoColors[0]);
+    pixels.setPixelColor(pgm_read_byte(&led_map[row][col]), colors[0]);
   }
 
   for (byte pixel = 0; pixel < 4; pixel++) {
     byte row = fallingPiecePixels[pixel][0];
     byte col = fallingPiecePixels[pixel][1];
 
-    byte nextRow = row + tetrominoRotations[tetrominoNum-1][currentRotation][pixel][0];
-    byte nextCol = col + tetrominoRotations[tetrominoNum-1][currentRotation][pixel][1];
+    byte nextRow = row + pgm_read_byte(&tetrominoRotations[tetrominoNum-1][currentRotation][pixel][0]);
+    byte nextCol = col + pgm_read_byte(&tetrominoRotations[tetrominoNum-1][currentRotation][pixel][1]);
 
-    pixels.setPixelColor(led_map[nextRow][nextCol], tetrominoColors[tetrominoNum]);
+    pixels.setPixelColor(pgm_read_byte(&led_map[nextRow][nextCol]), colors[tetrominoNum]);
 
     fallingPiecePixels[pixel][0] = nextRow;
     fallingPiecePixels[pixel][1] = nextCol;
@@ -168,20 +172,22 @@ void rotate_tetromino(Direction direction) {
 }
 
 void player_movement() {
-  leftState = !digitalRead(downStick);
-  rightState = !digitalRead(upStick);
-  downState = !digitalRead(rightStick);
-  upState = !digitalRead(leftStick);
+  leftState = !digitalRead(leftStick);
+  rightState = !digitalRead(rightStick);
+  downState = !digitalRead(downStick);
+  upState = !digitalRead(upStick);
 
-  // leftState = 0;
-  // rightState = 0;
-  // downState = 0;
-  // upState = 0;
-  
   if (downState) descend_tetromino();
   else if (leftState && !check_collision(0, -1)) move_tetromino(LEFT);
   else if (rightState && !check_collision(0, 1)) move_tetromino(RIGHT);
-  // if (upState && !check_rotation_collision(RIGHT)) rotate_tetromino(RIGHT); // Bug here
+}
+
+void rotate_tetromino() {
+  leftState = !digitalRead(leftButton);
+  rightState = !digitalRead(rightButton);
+
+  if (leftState && !check_rotation_collision(LEFT)) rotate_tetromino(LEFT);
+  else if (rightState && !check_rotation_collision(RIGHT)) rotate_tetromino(RIGHT);
 }
 
 void tetrisLoop() {
@@ -194,10 +200,19 @@ void tetrisLoop() {
     lastMovementTime = currentTime;
   }
 
+  if (currentTime - lastRotationTime >= rotationInterval) {
+    rotate_tetromino();
+    lastRotationTime = currentTime;
+  }
+
   if (currentTime - lastDescendTime >= descendInterval) {
     descend_tetromino();
     lastDescendTime = currentTime;
   }
   
   pixels.show();
+}
+
+void tetrisSetup() {
+  Serial.println("Tetris Setup");
 }
