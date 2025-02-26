@@ -1,8 +1,8 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-//#include <Adafruit_NeoPixel.h>
-//#include <Arduino.h>
+#include <Adafruit_NeoPixel.h>
+#include <Arduino.h>
 #include "aux_functions.h"
 
 struct Position{
@@ -25,7 +25,7 @@ struct faixaTroncoOuRua{
   unsigned short speed; //velocidade dos carros ou troncos em leds por segundo
   uint32_t cor; //cor dos carros ou troncos da linha
   unsigned long lastMovementTime;
-  unsigned char verificadorDeContinuidade;
+  unsigned char verificadorDeContinuidade = 0;
 };
 
 enum Direction {DOWN, UP, LEFT, RIGHT};
@@ -100,29 +100,25 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
   };
 
 // GLOBAL VARIABLES
-  inline Adafruit_NeoPixel pixels(NUM_PIXELS, ledMatrixPin, NEO_GRB + NEO_KHZ800);
+  Adafruit_NeoPixel pixels(NUM_PIXELS, ledMatrixPin, NEO_GRB + NEO_KHZ800);
   
-  inline byte ledStates[NUM_PIXELS] = {};
-
-  inline byte leftState = 0;
-  inline byte rightState = 0;
-  inline byte upState = 0;
-  inline byte downState = 0;
+  byte ledStates[NUM_PIXELS] = {};
+  byte leftState = 0;
+  byte rightState = 0;
+  byte upState = 0;
+  byte downState = 0;
   
-  inline int score = 0;
+  int score = 0;
 
 ///////////////////// TETRIS VARIABLES /////////////////////
 
 // GLOBAL VARIABLES
-  inline byte fallingPiecePixels[4][2] = {};
-
-  inline byte tetrominoNum = 0;
-  inline byte currentRotation = 0;
-
-  inline bool falling = false;
-
-  inline unsigned long lastDescendTime = 0;
-  inline unsigned long lastMovementTime = 0;
+  byte fallingPiecePixels[4][2] = {};
+  byte tetrominoNum = 0;
+  byte currentRotation = 0;
+  bool falling = false;
+  unsigned long lastDescendTime = 0;
+  unsigned long lastMovementTime = 0;
 
 // CONSTANTS
   const uint32_t tetrominoColors[11] = {black,yellow,cyan,blue,orange,green,red,magenta,gray,emerald,brown};
@@ -155,15 +151,15 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
   {{{1,1}, {-1,1}, {0,0}, {1,-1}},    {{1,-1}, {1,1}, {0,0}, {-1,-1}},    {{-1,-1}, {1,-1}, {0,0}, {-1,1}},    {{-1,1}, {-1,-1}, {0,0}, {1,1}}}
   };
 
-///////////////////// FROGGER VARIABLES /////////////////////4
+///////////////////// FROGGER VARIABLES /////////////////////
 
 // GLOBAL VARIABLES
   bool streetMode;
   struct frogger frog;
   struct faixaTroncoOuRua street[6];
   struct faixaTroncoOuRua river[6];
-  uint32_t matrixMapStreet[32][8];
-  uint32_t matrixMapRiver[32][8];
+  uint32_t matrixMap[2][32][8];
+  bool newGame = true;
 
 // CONSTANTS
 

@@ -5,11 +5,11 @@ void drawTerrain(){
   for(int row=0;row<32;row++){
     for(int col=0;col<8;col++){
       if(col==0||col==7){
-        matrixMapStreet[row][col] = emerald;
-        matrixMapRiver[row][col] = emerald;
+        matrixMap[0][row][col] = emerald;
+        matrixMap[1][row][col] = emerald;
       }else{
-        matrixMapStreet[row][col] = gray;
-        matrixMapRiver[row][col] = blue;
+        matrixMap[0][row][col] = gray;
+        matrixMap[1][row][col] = blue;
       }
     }
   }
@@ -194,7 +194,13 @@ void defineMatrixFaixa(){
     river[0].cor = brown;
 }
 
-bool verificaAdicaoDeElemento(struct faixaTroncoOuRua faixa, char col, uint32_t **matrixMap){
+bool verificaAdicaoDeElemento(struct faixaTroncoOuRua faixa, char col, char type){
+  char k;
+  if(type=='s')
+    k = 0;
+  else
+    k = 1; 
+
   if(faixa.verificadorDeContinuidade != 0){
     return true;
   }
@@ -202,12 +208,12 @@ bool verificaAdicaoDeElemento(struct faixaTroncoOuRua faixa, char col, uint32_t 
   unsigned char space = 0;
   
   if(faixa.direction){
-    for(int row=0; matrixMap[row][col+1] != faixa.cor ; row++)
+    for(int row=0; matrixMap[k][row][col+1] != faixa.cor ; row++)
       space++;
     if(space==faixa.space)
       return true;
   }else{
-    for(int row=31; matrixMap[row][col+1] != faixa.cor ; row--)
+    for(int row=31; matrixMap[k][row][col+1] != faixa.cor ; row--)
       space++;
     if(space==faixa.space)
       return true;
@@ -228,7 +234,13 @@ bool verificaSePodeAndar(struct faixaTroncoOuRua *faixas, char col, char divisor
   return false;
 }
 
-void MoveFaixa(struct faixaTroncoOuRua *faixas, char col, uint32_t **matrixMap, char type){
+void MoveFaixa(struct faixaTroncoOuRua *faixas, char col, char type){
+  char k;
+  if(type=='s')
+    k=0;
+  else
+    k=1;
+
   if(faixas[col].direction){ //se for pra direita
     for(int row=31; row>=0; row--){
       if(type!='s'){
@@ -238,11 +250,12 @@ void MoveFaixa(struct faixaTroncoOuRua *faixas, char col, uint32_t **matrixMap, 
 
       if(row==0){
         if(type=='s')
-          matrixMap[row][col+1] = gray;
+          matrixMap[k][row][col+1] = gray;
         else
-          matrixMap[row][col+1] = blue;
+          matrixMap[k][row][col+1] = blue;
+      }else{
+        matrixMap[k][row][col+1] = matrixMap[k][row-1][col+1];
       }
-      matrixMap[row][col+1] = matrixMap[row-1][col+1];
     }
   }else{
     for(int row=0; row<32; row++){ //se for para esquerda
@@ -253,20 +266,27 @@ void MoveFaixa(struct faixaTroncoOuRua *faixas, char col, uint32_t **matrixMap, 
 
       if(row==31){
         if(type=='s')
-          matrixMap[row][col+1] = gray;
+          matrixMap[k][row][col+1] = gray;
         else
-          matrixMap[row][col+1] = blue;
+          matrixMap[k][row][col+1] = blue;
+      }else{
+        matrixMap[k][row][col+1] = matrixMap[k][row+1][col+1];
       }
-      matrixMap[row][col+1] = matrixMap[row+1][col+1];
     }
   }
 }
 
-void AdicionaElemento(struct faixaTroncoOuRua *faixas, char col, uint32_t **matrixMap){
-  if(faixas[col].direction)
-    matrixMap[0][col+1] = faixas[col].cor;
+void AdicionaElemento(struct faixaTroncoOuRua *faixas, char col, char type){
+  char k;
+  if(type == 's')
+    k = 0;
   else
-    matrixMap[31][col+1] = faixas[col].cor;
+    k = 1;
+  
+  if(faixas[col].direction)
+    matrixMap[k][0][col+1] = faixas[col].cor;
+  else
+    matrixMap[k][31][col+1] = faixas[col].cor;
   if(faixas[col].verificadorDeContinuidade != 0)
     faixas[col].verificadorDeContinuidade--;
   else
@@ -282,55 +302,67 @@ void prepareTerrain(){
         if(cont==0)
           i = true;
         else
-          i = verificaAdicaoDeElemento(street[col], col, matrixMapStreet);
+          i = verificaAdicaoDeElemento(street[col], col, 's');
         if(i){
-          MoveFaixa(street, col, matrixMapStreet, 's');
-          AdicionaElemento(street, col, matrixMapStreet);
+          MoveFaixa(street, col, 's');
+          AdicionaElemento(street, col, 's');
         }else{
-          MoveFaixa(street, col, matrixMapStreet, 's');
+          MoveFaixa(street, col, 's');
         }
       }
     }
 
     for(int col=0; col<6; col++){
-      if(verificaSePodeAndar(river, col, 10)){ //para rua
+      if(verificaSePodeAndar(river, col, 10)){ //para rio
         bool i;
         if(cont==0)
           i = true;
         else
-          i = verificaAdicaoDeElemento(river[col], col, matrixMapRiver);
+          i = verificaAdicaoDeElemento(river[col], col, 'r');
         if(i){
-          MoveFaixa(river, col, matrixMapRiver, 'r');
-          AdicionaElemento(river, col, matrixMapRiver);
+          MoveFaixa(river, col, 'r');
+          AdicionaElemento(river, col, 'r');
         }else{
-          MoveFaixa(river, col, matrixMapRiver, 'r');
+          MoveFaixa(river, col, 'r');
         }
       }
     }
 
-    if(matrixMapStreet[0][3]==street[2].cor){
+    if(matrixMap[0][0][3]==street[2].cor){
       break;
     }
     cont++;
   }
 }
 
-void drawOnLedMap(uint32_t **matrixMap){
+void drawOnLedMap(char type){
+  char k;
+  if(type=='s')
+    k = 0;
+  else
+    k=1;
+
   for(int row=0; row<32; row++){
     for(int col=0; col<8; col++){
-      pixels.setPixelColor(led_map[row][col], matrixMap[row][col]);
+      pixels.setPixelColor(led_map[row][col], matrixMap[k][row][col]);
     }
   }
 }
 
-void movimentacoes(struct faixaTroncoOuRua *faixa, unsigned char type, uint32_t **matrixMap){
+void movimentacoes(struct faixaTroncoOuRua *faixa, unsigned char type){
+  char k;
+  if(type=='s')
+    k = 0;
+  else
+    k = 1;
+
   for(int col=0; col<6; col++){
     if(verificaSePodeAndar(faixa, col, 1)){ //geral
-      if(verificaAdicaoDeElemento(faixa[col], col, matrixMap)){
-        MoveFaixa(faixa, col, matrixMap, type);
-        AdicionaElemento(faixa, col, matrixMap);
+      if(verificaAdicaoDeElemento(faixa[col], col, type)){
+        MoveFaixa(faixa, col, type);
+        AdicionaElemento(faixa, col, type);
       }else{
-        MoveFaixa(faixa, col, matrixMap, type);
+        MoveFaixa(faixa, col, type);
       }
     }
   }
@@ -350,7 +382,7 @@ bool verificaDerrota(bool streetMode){
   if(streetMode){
     for(int row=0; row<32; row++){
       for(int col=1; col<7; col++){
-        if(matrixMapStreet[row][col] != gray && ((frog.posAtual.row == row)&&(frog.posAtual.col == col))){
+        if(matrixMap[0][row][col] != gray && ((frog.posAtual.row == row)&&(frog.posAtual.col == col))){
           return true;
         }
       }
@@ -358,7 +390,7 @@ bool verificaDerrota(bool streetMode){
   }else{
     for(int row=0; row<32; row++){
       for(int col=1; col<7; col++){
-        if(matrixMapRiver[row][col] == blue && ((frog.posAtual.row == row)&&(frog.posAtual.col == col))){
+        if(matrixMap[1][row][col] == blue && ((frog.posAtual.row == row)&&(frog.posAtual.col == col))){
           return true;
         }
       }
@@ -375,16 +407,22 @@ void froggerSetup(){
   defineMatrixFaixa();
   prepareTerrain();
   beginTimeVariables();
-  drawOnLedMap(matrixMapStreet);
+  drawOnLedMap('s');
   score = 0;
 }
 
 void froggerLoop(){
+
+  if(newGame){
+    froggerSetup();
+    newGame = false;
+  }
+
   pixels.show();
   if(streetMode){
-    movimentacoes(street, 's', matrixMapStreet);
+    movimentacoes(street, 's');
   }else{
-    movimentacoes(river, 'r', matrixMapRiver);
+    movimentacoes(river, 'r');
   }
 
   if(frogCanMove()){
@@ -400,6 +438,6 @@ void froggerLoop(){
     }
     pixels.show();
     delay(3000);
-    froggerSetup();
+    newGame = true;
   }
 }
