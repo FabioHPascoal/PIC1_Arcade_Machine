@@ -121,7 +121,9 @@ void descend_tetromino() {
 
 void new_tetromino() {
 
-  tetrominoNum = random(1, 8);
+  tetrominoNum = random(2, 8);
+  // tetrominoNum = random(1, 8);
+  
   for (byte i = 0; i < 4; i++) {
     byte row = pgm_read_byte(&tetrominoSpawnLocation[tetrominoNum - 1][i][0]);
     byte col = pgm_read_byte(&tetrominoSpawnLocation[tetrominoNum - 1][i][1]);
@@ -135,12 +137,33 @@ void new_tetromino() {
   currentRotation = 0;
 }
 
-bool check_rotation_collision(Direction direction) {
-  for (byte pixel = 0; pixel < 4; pixel++) {
-    int row = fallingPiecePixels[pixel][0] + (char)pgm_read_byte(&tetrominoRotations[tetrominoNum-1][currentRotation][pixel][0]);
-    int col = fallingPiecePixels[pixel][1] + (char)pgm_read_byte(&tetrominoRotations[tetrominoNum-1][currentRotation][pixel][1]);
+bool check_rotation_collision(Direction dir) {
+  int currentRotationInc; // -1 if left, 0 if right
+  int direction; // -1 if left, +1 if right
+  
+  switch (dir) {
+    case LEFT: 
+      currentRotationInc = -1;
+      direction = -1;
+      break;
+    
+    case RIGHT: 
+      currentRotationInc = 0;
+      direction = 1;
+      break;
+  }
 
-    if (row < 0 || col < 0 || row >= 32 || col >= 8 || ledStates[pgm_read_byte(&led_map[row][col])] != 0) {
+  for (byte pixel = 0; pixel < 4; pixel++) {
+    byte row = fallingPiecePixels[pixel][0];
+    byte col = fallingPiecePixels[pixel][1];
+
+    char rowInc = (char)pgm_read_byte(&tetrominoRotations[tetrominoNum-1][(currentRotation + currentRotationInc +4) %4][pixel][0]);
+    char colInc = (char)pgm_read_byte(&tetrominoRotations[tetrominoNum-1][(currentRotation + currentRotationInc +4) %4][pixel][1]);
+
+    byte nextRow = row + (direction)*rowInc;
+    byte nextCol = col + (direction)*colInc;
+
+    if (nextRow < 0 || nextCol < 0 || nextRow >= 32 || nextCol >= 8 || ledStates[pgm_read_byte(&led_map[row][col])] != 0) {
       return true;
     }
   }
@@ -148,7 +171,22 @@ bool check_rotation_collision(Direction direction) {
   return false;
 }
 
-void rotate_tetromino(Direction direction) {
+void rotate_tetromino(Direction dir) {
+  int currentRotationInc; // -1 if left, 0 if right
+  int direction; // -1 if left, +1 if right
+  
+  switch (dir) {
+    case LEFT: 
+      currentRotationInc = -1;
+      direction = -1;
+      break;
+    
+    case RIGHT: 
+      currentRotationInc = 0;
+      direction = 1;
+      break;
+  }
+  
   for (byte pixel = 0; pixel < 4; pixel++) {
     byte row = fallingPiecePixels[pixel][0];
     byte col = fallingPiecePixels[pixel][1];
@@ -160,15 +198,19 @@ void rotate_tetromino(Direction direction) {
     byte row = fallingPiecePixels[pixel][0];
     byte col = fallingPiecePixels[pixel][1];
 
-    byte nextRow = row + pgm_read_byte(&tetrominoRotations[tetrominoNum-1][currentRotation][pixel][0]);
-    byte nextCol = col + pgm_read_byte(&tetrominoRotations[tetrominoNum-1][currentRotation][pixel][1]);
+    char rowInc = (char)pgm_read_byte(&tetrominoRotations[tetrominoNum-1][(currentRotation + currentRotationInc +4) %4][pixel][0]);
+    char colInc = (char)pgm_read_byte(&tetrominoRotations[tetrominoNum-1][(currentRotation + currentRotationInc +4) %4][pixel][1]);
+
+    byte nextRow = row + (direction)*rowInc;
+    byte nextCol = col + (direction)*colInc;
 
     pixels.setPixelColor(pgm_read_byte(&led_map[nextRow][nextCol]), colors[tetrominoNum]);
 
     fallingPiecePixels[pixel][0] = nextRow;
     fallingPiecePixels[pixel][1] = nextCol;
   }
-  currentRotation = (currentRotation + 1) % 4;
+
+  currentRotation = (currentRotation + 4 + direction) % 4;
 }
 
 void player_movement() {
@@ -182,7 +224,7 @@ void player_movement() {
   else if (rightState && !check_collision(0, 1)) move_tetromino(RIGHT);
 }
 
-void rotate_tetromino() {
+void player_rotation() {
   leftState = !digitalRead(leftButton);
   rightState = !digitalRead(rightButton);
 
@@ -201,7 +243,7 @@ void tetrisLoop() {
   }
 
   if (currentTime - lastRotationTime >= rotationInterval) {
-    rotate_tetromino();
+    player_rotation();
     lastRotationTime = currentTime;
   }
 

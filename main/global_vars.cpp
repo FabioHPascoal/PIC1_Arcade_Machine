@@ -70,7 +70,7 @@ bool falling = false;
 unsigned long lastDescendTime = 0, lastMovementTime = 0, lastRotationTime = 0;
 
 // Constantes de Tetris
-const unsigned long movementInterval = 100, descendInterval = 1000, rotationInterval = 500;
+const unsigned long movementInterval = 100, descendInterval = 1000, rotationInterval = 300;
 
 // Lookup Tables armazenadas em Flash (PROGMEM)
 const byte tetrominoSpawnLocation[7][4][2] PROGMEM = {
