@@ -121,8 +121,7 @@ void descend_tetromino() {
 
 void new_tetromino() {
 
-  tetrominoNum = random(2, 8);
-  // tetrominoNum = random(1, 8);
+  tetrominoNum = random(1, 8);
   
   for (byte i = 0; i < 4; i++) {
     byte row = pgm_read_byte(&tetrominoSpawnLocation[tetrominoNum - 1][i][0]);
