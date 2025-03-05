@@ -24,11 +24,11 @@ uint32_t cyan    = adjustBrightness(  0, 255, 255, BRIGHTNESS);
 uint32_t magenta = adjustBrightness(255,   0, 255, BRIGHTNESS);
 uint32_t orange  = adjustBrightness(255, 120,   0, BRIGHTNESS);
 uint32_t gray    = adjustBrightness( 36,  36,  36, BRIGHTNESS);
-uint32_t emerald = adjustBrightness(  4,  99,   7, BRIGHTNESS);
+uint32_t emerald = adjustBrightness( 49, 120, 115, BRIGHTNESS);
 uint32_t brown   = adjustBrightness(150,  75,   0, BRIGHTNESS);
 
 // Array com as cores criadas
-const uint32_t colors[8] = {black, yellow, cyan, blue, orange, green, red, magenta};
+const uint32_t colors[12] = {black, yellow, cyan, blue, orange, green, red, magenta, white, gray, emerald, brown};
 
 // Lookup Tables armazenadas na Flash (PROGMEM)
 const byte led_map[32][8] PROGMEM = {
@@ -101,7 +101,7 @@ const char tetrominoRotations[7][4][4][2] PROGMEM {
 //FROGGER
 
 Mode gameMode = STREET;
-tFrog frog = {{matrixNumRow/2, 0}, 0, 0, 40}; //ainda precisa inicializar as variáveis de tempo do frog
+tFrog frog = {{matrixNumRow/2, 0}, 0, 0, 80}; //ainda precisa inicializar as variáveis de tempo do frog
 
 // Matriz da rua
 tFaixa street[6] = {
@@ -123,76 +123,76 @@ tFaixa river[6] = {
     {RIVER, RIGHT, 5, 12, 10, brown, 0, 0},
 };
 
-const uint32_t matrixMap[2][32][8] PROGMEM = {
+extern const char matrixMap[2][32][8] PROGMEM = {
     // Modo STREET (matrixMap[0])
     {
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald},
-        {emerald, gray, gray, gray, gray, gray, gray, emerald}
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5},
+        {5, 0, 0, 0, 0, 0, 0, 5}
     },
     // Modo RIVER (matrixMap[1])
     {
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald},
-        {emerald, blue, blue, blue, blue, blue, blue, emerald}
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5},
+        {5, 3, 3, 3, 3, 3, 3, 5}
     }
 };
 bool newGame = true;

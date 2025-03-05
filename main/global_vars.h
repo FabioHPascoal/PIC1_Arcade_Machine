@@ -4,7 +4,6 @@
 #include <TM1637Display.h>
 #include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
-
 #include "aux_functions.h"
 
 enum Direction {DOWN, UP, LEFT, RIGHT};
@@ -34,7 +33,7 @@ constexpr uint8_t ssegClk = 4;
 
 // Colors (declaradas como `extern`, definidas no `.cpp`)
 extern uint32_t red, green, blue, white, black, yellow, cyan, magenta, orange, gray, emerald, brown;
-extern const uint32_t colors[8];
+extern const uint32_t colors[12];
 
 // Lookup Table (armazenada em PROGMEM)
 extern const byte led_map[32][8] PROGMEM;
@@ -93,7 +92,7 @@ extern Mode gameMode;
 extern tFrog frog;
 extern tFaixa street[6];
 extern tFaixa river[6];
-extern const uint32_t matrixMap[2][32][8] PROGMEM;
+extern const char matrixMap[2][32][8] PROGMEM;
 extern bool newGame;
 
 #endif
