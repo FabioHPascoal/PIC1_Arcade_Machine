@@ -14,15 +14,18 @@ byte currentGame = 0;
 int score = 0;
 
 // Cores (definição real das variáveis)
-uint32_t red     = adjustBrightness(255, 0, 0, BRIGHTNESS);
-uint32_t green   = adjustBrightness(0, 255, 0, BRIGHTNESS);
-uint32_t blue    = adjustBrightness(0, 0, 255, BRIGHTNESS);
+uint32_t red     = adjustBrightness(255,   0,   0, BRIGHTNESS);
+uint32_t green   = adjustBrightness(  0, 255,   0, BRIGHTNESS);
+uint32_t blue    = adjustBrightness(  0,   0, 255, BRIGHTNESS);
 uint32_t white   = adjustBrightness(255, 255, 255, BRIGHTNESS);
-uint32_t black   = adjustBrightness(0, 0, 0, BRIGHTNESS);
-uint32_t yellow  = adjustBrightness(255, 255, 0, BRIGHTNESS);
-uint32_t cyan    = adjustBrightness(0, 255, 255, BRIGHTNESS);
-uint32_t magenta = adjustBrightness(255, 0, 255, BRIGHTNESS);
-uint32_t orange  = adjustBrightness(255, 120, 0, BRIGHTNESS);
+uint32_t black   = adjustBrightness(  0,   0,   0, BRIGHTNESS);
+uint32_t yellow  = adjustBrightness(255, 255,   0, BRIGHTNESS);
+uint32_t cyan    = adjustBrightness(  0, 255, 255, BRIGHTNESS);
+uint32_t magenta = adjustBrightness(255,   0, 255, BRIGHTNESS);
+uint32_t orange  = adjustBrightness(255, 120,   0, BRIGHTNESS);
+uint32_t gray    = adjustBrightness( 36,  36,  36, BRIGHTNESS);
+uint32_t emerald = adjustBrightness(  4,  99,   7, BRIGHTNESS);
+uint32_t brown   = adjustBrightness(150,  75,   0, BRIGHTNESS);
 
 // Array com as cores criadas
 const uint32_t colors[8] = {black, yellow, cyan, blue, orange, green, red, magenta};
@@ -93,3 +96,103 @@ const char tetrominoRotations[7][4][4][2] PROGMEM {
 {{{0,2}, {1,1}, {0,0}, {1,-1}},    {{2,0}, {1,-1}, {0,0}, {-1,-1}},    {{0,-2}, {-1,-1}, {0,0}, {-1,1}},    {{-2,0}, {-1,1}, {0,0}, {1,1}}},
 {{{1,1}, {-1,1}, {0,0}, {1,-1}},    {{1,-1}, {1,1}, {0,0}, {-1,-1}},    {{-1,-1}, {1,-1}, {0,0}, {-1,1}},    {{-1,1}, {-1,-1}, {0,0}, {1,1}}}
 };
+
+
+//FROGGER
+
+Mode gameMode = STREET;
+tFrog frog = {{matrixNumRow/2, 0}, 0, 0, 40}; //ainda precisa inicializar as variáveis de tempo do frog
+
+// Matriz da rua
+tFaixa street[6] = {
+    {STREET, LEFT, 3, 5, 2, brown, 0, 0},
+    {STREET, RIGHT, 1, 3, 1, yellow, 0, 0},
+    {STREET, LEFT, 1, 3, 1, blue, 0, 0},
+    {STREET, RIGHT, 1, 5, 2, magenta, 0, 0},
+    {STREET, LEFT, 1, 8, 8, red, 0, 0},
+    {STREET, RIGHT, 2, 4, 2, white, 0, 0},
+};
+
+// Matriz do rio
+tFaixa river[6] = {
+    {RIVER, LEFT, 2, 4, 4, brown, 0, 0},
+    {RIVER, RIGHT, 3, 2, 5, red, 0, 0},
+    {RIVER, LEFT, 3, 4, 6, brown, 0, 0},
+    {RIVER, RIGHT, 8, 14, 8, brown, 0, 0},
+    {RIVER, LEFT, 2, 3, 4, red, 0, 0},
+    {RIVER, RIGHT, 5, 12, 10, brown, 0, 0},
+};
+
+const uint32_t matrixMap[2][32][8] PROGMEM = {
+    // Modo STREET (matrixMap[0])
+    {
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald},
+        {emerald, gray, gray, gray, gray, gray, gray, emerald}
+    },
+    // Modo RIVER (matrixMap[1])
+    {
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald},
+        {emerald, blue, blue, blue, blue, blue, blue, emerald}
+    }
+};
+bool newGame = true;
