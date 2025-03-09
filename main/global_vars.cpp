@@ -23,11 +23,12 @@ uint32_t yellow  = adjustBrightness(255, 255,   0, BRIGHTNESS);
 uint32_t cyan    = adjustBrightness(  0, 255, 255, BRIGHTNESS);
 uint32_t magenta = adjustBrightness(255,   0, 255, BRIGHTNESS);
 uint32_t orange  = adjustBrightness(255, 120,   0, BRIGHTNESS);
-uint32_t gray    = adjustBrightness( 36,  36,  36, BRIGHTNESS);
-uint32_t emerald = adjustBrightness( 49, 120, 115, BRIGHTNESS);
-uint32_t brown   = adjustBrightness(150,  75,   0, BRIGHTNESS);
+uint32_t gray    = adjustBrightness( 0,   0,    0, BRIGHTNESS);
+uint32_t emerald = adjustBrightness( 60, 255, 100, BRIGHTNESS);
+uint32_t brown   = adjustBrightness( 66,  38,   0, BRIGHTNESS);
 
 // Array com as cores criadas
+                            //-0------1------2-----3------4-------5-----6------7-------8-----9-------10------11
 const uint32_t colors[12] = {black, yellow, cyan, blue, orange, green, red, magenta, white, gray, emerald, brown};
 
 // Lookup Tables armazenadas na Flash (PROGMEM)
@@ -105,94 +106,22 @@ tFrog frog = {{matrixNumRow/2, 0}, 0, 0, 80}; //ainda precisa inicializar as var
 
 // Matriz da rua
 tFaixa street[6] = {
-    {STREET, LEFT, 3, 5, 2, brown, 0, 0},
-    {STREET, RIGHT, 1, 3, 1, yellow, 0, 0},
-    {STREET, LEFT, 1, 3, 1, blue, 0, 0},
-    {STREET, RIGHT, 1, 5, 2, magenta, 0, 0},
-    {STREET, LEFT, 1, 8, 8, red, 0, 0},
-    {STREET, RIGHT, 2, 4, 2, white, 0, 0},
+    {STREET, LEFT , 3,  5,  500, 11, 0, 0},
+    {STREET, RIGHT, 2,  5, 1000,  1, 0, 0},
+    {STREET, LEFT , 2,  3, 1000,  3, 0, 0},
+    {STREET, RIGHT, 1,  5,  500,  7, 0, 0},
+    {STREET, LEFT , 2,  8,  125,  6, 0, 0},
+    {STREET, RIGHT, 2,  4,  500,  8, 0, 0},
 };
 
 // Matriz do rio
 tFaixa river[6] = {
-    {RIVER, LEFT, 2, 4, 4, brown, 0, 0},
-    {RIVER, RIGHT, 3, 2, 5, red, 0, 0},
-    {RIVER, LEFT, 3, 4, 6, brown, 0, 0},
-    {RIVER, RIGHT, 8, 14, 8, brown, 0, 0},
-    {RIVER, LEFT, 2, 3, 4, red, 0, 0},
-    {RIVER, RIGHT, 5, 12, 10, brown, 0, 0},
+    {RIVER,  LEFT , 2,  4,  250, 11, 0, 0},
+    {RIVER,  RIGHT, 3,  2,  200,  5, 0, 0},
+    {RIVER,  LEFT , 3,  4,  160, 11, 0, 0},
+    {RIVER,  RIGHT, 8, 14,  125, 11, 0, 0},
+    {RIVER,  LEFT , 2,  3,  250,  5, 0, 0},
+    {RIVER,  RIGHT, 5, 12,  100, 11, 0, 0},
 };
 
-extern const char matrixMap[2][32][8] PROGMEM = {
-    // Modo STREET (matrixMap[0])
-    {
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5},
-        {5, 0, 0, 0, 0, 0, 0, 5}
-    },
-    // Modo RIVER (matrixMap[1])
-    {
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5},
-        {5, 3, 3, 3, 3, 3, 3, 5}
-    }
-};
 bool newGame = true;

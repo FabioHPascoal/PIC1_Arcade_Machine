@@ -73,8 +73,8 @@ typedef struct {
 typedef struct{
   tPosition posAtual;
   unsigned char posMaxY;
-  unsigned long lastMovementTimeFrogger;
-  unsigned char movementIntervalFrogger;
+  unsigned long lastMovementTime;
+  unsigned char movementInterval;
 }tFrog;
 
 typedef struct {
@@ -82,17 +82,17 @@ typedef struct {
   Direction direction; //right or left
   unsigned char tamElements; //tamanho dos veiculos ou troncos na linha
   unsigned char space; //espaco entre os carros ou troncos da linha
-  unsigned short speed; //velocidade dos carros ou troncos em leds por segundo
-  uint32_t color; //cor dos carros ou troncos da linha
+  unsigned short movementInterval; //velocidade dos carros ou troncos em leds por segundo
+  char colorIndice; //indice da cor dos carros ou troncos da linha
   unsigned long lastMovementTime; // Este campo pode não ser constante
-  unsigned char verificadorDeContinuidade; // Este campo pode não ser constante
+  unsigned char qtdElementosAAdicionar; // Este campo pode não ser constante
+  unsigned char qtdEspacosAAdicionar;
 }tFaixa;
 
 extern Mode gameMode;
 extern tFrog frog;
 extern tFaixa street[6];
 extern tFaixa river[6];
-extern const char matrixMap[2][32][8] PROGMEM;
 extern bool newGame;
 
 #endif
