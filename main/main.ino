@@ -6,7 +6,6 @@
 
 void setup() {
   startSystem();
-  froggerSetup();
 }
 
 void loop() {

@@ -6,29 +6,6 @@
 #include <Arduino.h>
 #include "aux_functions.h"
 
-struct Position{
-  unsigned char row;
-  unsigned char col;
-};
-
-struct frogger{
-  struct Position posAtual;
-  unsigned char posMaxY = 0;
-  unsigned long lastMovementTimeFrogger;
-  unsigned char movementIntervalFrogger = 40;
-};
-
-struct faixaTroncoOuRua{
-  bool type; //rua ou rio
-  bool direction; //false = esquerda e true = direita
-  unsigned char tamElements; //tamanho dos veiculos ou troncos na linha
-  unsigned char space; //espaco entre os carros ou troncos da linha
-  unsigned short speed; //velocidade dos carros ou troncos em leds por segundo
-  uint32_t cor; //cor dos carros ou troncos da linha
-  unsigned long lastMovementTime;
-  unsigned char verificadorDeContinuidade = 0;
-};
-
 enum Direction {DOWN, UP, LEFT, RIGHT};
 
 ///////////////////// GENERAL VARIABLES /////////////////////
