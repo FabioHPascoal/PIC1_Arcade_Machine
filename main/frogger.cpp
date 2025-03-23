@@ -1,443 +1,344 @@
 #include "frogger.h"
 #include "global_vars.h"
 
-void drawTerrain(){
-  for(int row=0;row<32;row++){
-    for(int col=0;col<8;col++){
+void defineMap(){
+  for(char row=0; row<32; row++){
+    for(char col=0; col<8; col++){
       if(col==0||col==7){
-        matrixMap[0][row][col] = emerald;
-        matrixMap[1][row][col] = emerald;
-      }else{
-        matrixMap[0][row][col] = gray;
-        matrixMap[1][row][col] = blue;
+        ledStates[pgm_read_byte(&led_map[row][col])] = 5; //verificar porque não é necessário ler a ledMAP sem precisar usar pgm_read_byte 
+        pixels.setPixelColor(pgm_read_byte(&led_map[row][col]), colors[5]);
       }
     }
   }
 }
 
-void initializeFrog(){
-  frog.posAtual.row = (matrixNumRow/2);
-  frog.posAtual.col = 0;
-  pixels.setPixelColor(led_map[frog.posAtual.row][frog.posAtual.col], green);
+char defineIndice(Direction direction){
+  if(direction==RIGHT)
+    return 0;
+  else
+    return 31;
 }
 
-void beginTimeVariables(){
-  frog.lastMovementTimeFrogger = millis() - frog.movementIntervalFrogger;
+char defineLimit(Direction direction){
+  if(direction==RIGHT)
+    return 32;
+  else
+    return -1;
 }
 
-bool verficaColisaoEsquerda(){
-  if(frog.posAtual.row == 0)
+char defineIncremento(Direction direction){
+  if(direction==RIGHT)
+    return 1;
+  else
+    return -1;
+}
+
+void initializeArrays(){
+  tFaixa *faixa;
+  char indiceCor;
+  if(gameMode==STREET){
+    faixa = street;
+    indiceCor = 9;
+  }else if(gameMode==RIVER){
+    faixa = river;
+    indiceCor = 12;
+  }
+
+  for(char line=0; line<6; line++){ //colunas do mapa vulfo linhas da rua ou do rio
+    char espacamentoAcolocar = faixa[line].space;
+    char tamElementosAColocar = 0;
+    for(char rowMap=defineIndice(faixa[line].direction); rowMap!=defineLimit(faixa[line].direction); rowMap+=defineIncremento(faixa[line].direction)){
+      if(tamElementosAColocar>0){
+        ledStates[pgm_read_byte(&led_map[rowMap][line+1])] = faixa[line].colorIndice;
+        pixels.setPixelColor(pgm_read_byte(&led_map[rowMap][line+1]), colors[faixa[line].colorIndice]);
+        tamElementosAColocar--;
+        if(tamElementosAColocar==0)
+          espacamentoAcolocar = faixa[line].space;
+      }else if(espacamentoAcolocar>0){
+        ledStates[pgm_read_byte(&led_map[rowMap][line+1])] = indiceCor;
+        pixels.setPixelColor(pgm_read_byte(&led_map[rowMap][line+1]), colors[indiceCor]);
+        espacamentoAcolocar--;
+        if(espacamentoAcolocar==0)
+          tamElementosAColocar = faixa[line].tamElements;
+      }
+    }
+  }
+}
+
+void naoSeiQualNomeColoco(){ //função que define que inicialmente os carros ou troncos vao ter que ser gerados nas extremidades do mapa
+  char line;
+  for(char i=0; i<2; i++){
+    if(i==0){
+      for(line=0; line<6; line++){
+        street[line].qtdElementosAAdicionar = street[line].tamElements;
+      }
+    }else{
+      for(line=0; line<6; line++){
+        river[line].qtdElementosAAdicionar = river[line].tamElements;
+      }
+    }
+  }
+}
+
+void naoSeiQualNomeColoco2(){
+  char line;
+  for(char i=0; i<2; i++){
+    if(i==0){
+      for(line=0; line<6; line++){
+        street[line].qtdEspacosAAdicionar = 0;
+      }
+    }else{
+      for(line=0; line<6; line++){
+        river[line].qtdEspacosAAdicionar = 0;
+      }
+    }
+  }
+}
+
+uint32_t getColorInColors(char indice){
+  return colors[indice];
+} 
+
+// void drawOnPixels(Mode gameMode){
+//   for(int row=0; row<32; row++){
+//     for(int col=0; col<8; col++){
+//       pixels.setPixelColor(pgm_read_byte(&led_map[row][col]), colors[ledStates[pgm_read_byte(&led_map[row][col])]]);
+//     }
+//   }
+// }
+
+void beginFrog(){
+  frog = {{matrixNumRow/2, 0}, 0, 0, 80};
+  frog.lastMovementTime = millis() - frog.movementInterval;
+}
+
+bool frogCanMove(){
+  unsigned long currentTime = millis();
+
+  if (currentTime - frog.lastMovementTime >= frog.movementInterval) {
     return true;
+  }
+
   return false;
 }
 
-bool verficaColisaoDireita(){
-  if(frog.posAtual.row == matrixNumRow -1)
-    return true;
-  return false;
+void moveFrog(Direction direction){
+  pixels.setPixelColor(pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col]), colors[ledStates[pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col])]]);
+  Serial.println(ledStates[pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col])]);
+  switch(direction){
+    case LEFT : frog.posAtual.row--; break;
+    case RIGHT: frog.posAtual.row++; break;
+    case UP:    frog.posAtual.col++; break;
+    case DOWN:  frog.posAtual.col--; break;
+  }
+
+  frog.lastMovementTime = millis();
 }
 
-bool verficaColisaoInferior(){
-  if(frog.posAtual.col == 0)
-    return true;
+bool verficaColisao(Direction direction){
+  switch(direction){
+    case LEFT:  if(frog.posAtual.row == 0 ) return true; break;
+    case RIGHT: if(frog.posAtual.row == 31) return true; break;
+    case DOWN:  if(frog.posAtual.col == 0 ) return true; break;
+    case UP:    if(frog.posAtual.col == 7 ) return true; break;
+  }
   return false;
-}
-
-bool verficaColisaoSuperior(){
-  if(frog.posAtual.col == matrixNumCol -1)
-    return true;
-  return false;
-}
-
-void moveFrog(char direction, char value){
-  if(direction == 'V')
-    frog.posAtual.col+= value;
-  else if(direction == 'H')
-    frog.posAtual.row+= value;
-
 }
 
 void ReposicionaFrog(){
   frog.posAtual.col = 0;
+  frog.posMaxY = 0;
 }
 
 void changeGameMode(){
-  streetMode = !streetMode;
+  switch(gameMode){
+    case STREET: gameMode = RIVER ; break;
+    case RIVER : gameMode = STREET; break;
+  }
+  initializeArrays();
+  naoSeiQualNomeColoco();
+}
+
+void IncreaseScore(unsigned char value){
+  score += value;
 }
 
 void frog_movement(){
-  leftState = !digitalRead(downStick);
-  rightState = !digitalRead(upStick);
-  downState = !digitalRead(rightStick);
-  upState = !digitalRead(leftStick);
+  leftState  = !digitalRead(leftStick );
+  rightState = !digitalRead(rightStick);
+  downState  = !digitalRead(downStick );
+  upState    = !digitalRead(upStick   );
 
   if (leftState){
-    if(!verficaColisaoEsquerda()){
-      moveFrog('H',-1);
+    if(!verficaColisao(LEFT)){
+      moveFrog(LEFT);
     }
   }
 
   if (rightState){
-    if(!verficaColisaoDireita()){
-      moveFrog('H',1);
+    if(!verficaColisao(RIGHT)){
+      moveFrog(RIGHT);
     }
   }
 
   if (downState){
-    if(!verficaColisaoInferior()){
-      moveFrog('V',-1);
+    if(!verficaColisao(DOWN)){
+      moveFrog(DOWN);
     }
   }
 
   if (upState){
-    if(verficaColisaoSuperior()){
+    if(verficaColisao(UP)){
       ReposicionaFrog();
       changeGameMode();
-      score += 200;
+      IncreaseScore(200);
     }else{
-      moveFrog('V',1);
+      moveFrog(UP);
       if(frog.posMaxY < frog.posAtual.col){
-        score += 10;
+        IncreaseScore(10);
         frog.posMaxY = frog.posAtual.col;
       }
     }
   }
 }
 
-void defineMatrixFaixa(){
-  //street
-    //faixa 6
-    street[5].type = streetMode;
-    street[5].direction = true;
-    street[5].tamElements = 2;
-    street[5].space = 4;
-    street[5].speed = 2;
-    street[5].cor = white;
-    //faixa 5
-    street[4].type = streetMode;
-    street[4].direction = false;
-    street[4].tamElements = 1;
-    street[4].space = 8;
-    street[4].speed = 8;
-    street[4].cor = red;
-    //faixa 4
-    street[3].type = streetMode;
-    street[3].direction = true;
-    street[3].tamElements = 1;
-    street[3].space = 5;
-    street[3].speed = 2;
-    street[3].cor = magenta;
-    //faixa 3
-    street[2].type = streetMode;
-    street[2].direction = false;
-    street[2].tamElements = 1;
-    street[2].space = 3;
-    street[2].speed = 1;
-    street[2].cor = blue;
-    //faixa 2
-    street[1].type = streetMode;
-    street[1].direction = true;
-    street[1].tamElements = 1;
-    street[1].space = 3;
-    street[1].speed = 1;
-    street[1].cor = yellow;
-    //faixa 1
-    street[0].type = streetMode;
-    street[0].direction = false;
-    street[0].tamElements = 3;
-    street[0].space = 5;
-    street[0].speed = 2;
-    street[0].cor = brown;
-  
-  //river
-    //faixa 6
-    river[5].type = !streetMode;
-    river[5].direction = true;
-    river[5].tamElements = 5;
-    river[5].space = 12;
-    river[5].speed = 10;
-    river[5].cor = brown;
-    //faixa 5
-    river[4].type = !streetMode;
-    river[4].direction = false;
-    river[4].tamElements = 2;
-    river[4].space = 3;
-    river[4].speed = 4;
-    river[4].cor = red;
-    //faixa 4
-    river[3].type = !streetMode;
-    river[3].direction = true;
-    river[3].tamElements = 8;
-    river[3].space = 14;
-    river[3].speed = 8;
-    river[3].cor = brown;
-    //faixa 3
-    river[2].type = !streetMode;
-    river[2].direction = false;
-    river[2].tamElements = 3;
-    river[2].space = 4;
-    river[2].speed = 6;
-    river[2].cor = brown;
-    //faixa 2
-    river[1].type = !streetMode;
-    river[1].direction = true;
-    river[1].tamElements = 3;
-    river[1].space = 2;
-    river[1].speed = 5;
-    river[1].cor = red;
-    //faixa 1
-    river[0].type = !streetMode;
-    river[0].direction = false;
-    river[0].tamElements = 2;
-    river[0].space = 4;
-    river[0].speed = 4;
-    river[0].cor = brown;
+void drawFrogOnMap(){
+  pixels.setPixelColor(pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col]), red);
 }
 
-bool verificaAdicaoDeElemento(struct faixaTroncoOuRua faixa, char col, char type){
-  char k;
-  if(type=='s')
-    k = 0;
-  else
-    k = 1; 
-
-  if(faixa.verificadorDeContinuidade != 0){
-    return true;
-  }
-
-  unsigned char space = 0;
-  
-  if(faixa.direction){
-    for(int row=0; matrixMap[k][row][col+1] != faixa.cor ; row++)
-      space++;
-    if(space==faixa.space)
-      return true;
-  }else{
-    for(int row=31; matrixMap[k][row][col+1] != faixa.cor ; row--)
-      space++;
-    if(space==faixa.space)
-      return true;
-  }
-
-  return false;
-}
-
-unsigned short getInterval(unsigned short speed, char divisor){
-  return (1000/speed)/divisor;
-}
-
-bool verificaSePodeAndar(struct faixaTroncoOuRua *faixas, char col, char divisor){
-  unsigned long currentTime = millis();
-  if(currentTime - faixas[col].lastMovementTime >= getInterval(faixas[col].speed, divisor)){
-    return true;
-  }
-  return false;
-}
-
-void MoveFaixa(struct faixaTroncoOuRua *faixas, char col, char type){
-  char k;
-  if(type=='s')
-    k=0;
-  else
-    k=1;
-
-  if(faixas[col].direction){ //se for pra direita
-    for(int row=31; row>=0; row--){
-      if(type!='s'){
-        if(frog.posAtual.col == col+1 && frog.posAtual.row != 31)
-          frog.posAtual.row++;
-      }
-
-      if(row==0){
-        if(type=='s')
-          matrixMap[k][row][col+1] = gray;
-        else
-          matrixMap[k][row][col+1] = blue;
-      }else{
-        matrixMap[k][row][col+1] = matrixMap[k][row-1][col+1];
-      }
-    }
-  }else{
-    for(int row=0; row<32; row++){ //se for para esquerda
-      if(type!='s'){
-        if(frog.posAtual.col == col+1 && frog.posAtual.row != 0)
-          frog.posAtual.row--;
-      }
-
-      if(row==31){
-        if(type=='s')
-          matrixMap[k][row][col+1] = gray;
-        else
-          matrixMap[k][row][col+1] = blue;
-      }else{
-        matrixMap[k][row][col+1] = matrixMap[k][row+1][col+1];
+void frogDeath(){
+  for(char row=frog.posAtual.row-1; row<=frog.posAtual.row+1; row++){
+    for(char col=frog.posAtual.col-1; col<=frog.posAtual.col+1; col++){
+      if(row!=-1&&row!=32&&col!=-1&&col!=8){
+        ledStates[pgm_read_byte(&led_map[row][col])] = 6;
+        pixels.setPixelColor(pgm_read_byte(&led_map[row][col]), red);
       }
     }
   }
-}
-
-void AdicionaElemento(struct faixaTroncoOuRua *faixas, char col, char type){
-  char k;
-  if(type == 's')
-    k = 0;
-  else
-    k = 1;
-  
-  if(faixas[col].direction)
-    matrixMap[k][0][col+1] = faixas[col].cor;
-  else
-    matrixMap[k][31][col+1] = faixas[col].cor;
-  if(faixas[col].verificadorDeContinuidade != 0)
-    faixas[col].verificadorDeContinuidade--;
-  else
-    faixas[col].verificadorDeContinuidade = faixas[col].tamElements - 1;
-}
-
-void prepareTerrain(){
-  char cont = 0;
-  while(true){
-    for(int col=0; col<6; col++){
-      if(verificaSePodeAndar(street, col, 10)){ //para rua
-        bool i;
-        if(cont==0)
-          i = true;
-        else
-          i = verificaAdicaoDeElemento(street[col], col, 's');
-        if(i){
-          MoveFaixa(street, col, 's');
-          AdicionaElemento(street, col, 's');
-        }else{
-          MoveFaixa(street, col, 's');
-        }
-      }
-    }
-
-    for(int col=0; col<6; col++){
-      if(verificaSePodeAndar(river, col, 10)){ //para rio
-        bool i;
-        if(cont==0)
-          i = true;
-        else
-          i = verificaAdicaoDeElemento(river[col], col, 'r');
-        if(i){
-          MoveFaixa(river, col, 'r');
-          AdicionaElemento(river, col, 'r');
-        }else{
-          MoveFaixa(river, col, 'r');
-        }
-      }
-    }
-
-    if(matrixMap[0][0][3]==street[2].cor){
-      break;
-    }
-    cont++;
-  }
-}
-
-void drawOnLedMap(char type){
-  char k;
-  if(type=='s')
-    k = 0;
-  else
-    k=1;
-
-  for(int row=0; row<32; row++){
-    for(int col=0; col<8; col++){
-      pixels.setPixelColor(led_map[row][col], matrixMap[k][row][col]);
-    }
-  }
-}
-
-void movimentacoes(struct faixaTroncoOuRua *faixa, unsigned char type){
-  char k;
-  if(type=='s')
-    k = 0;
-  else
-    k = 1;
-
-  for(int col=0; col<6; col++){
-    if(verificaSePodeAndar(faixa, col, 1)){ //geral
-      if(verificaAdicaoDeElemento(faixa[col], col, type)){
-        MoveFaixa(faixa, col, type);
-        AdicionaElemento(faixa, col, type);
-      }else{
-        MoveFaixa(faixa, col, type);
-      }
-    }
-  }
-}
-
-bool frogCanMove(){
-  unsigned long currentTime = millis();
-
-  if (currentTime - frog.lastMovementTimeFrogger >= frog.movementIntervalFrogger) {
-    return true;
-  }
-
-  return false;
-}
-
-bool verificaDerrota(bool streetMode){
-  if(streetMode){
-    for(int row=0; row<32; row++){
-      for(int col=1; col<7; col++){
-        if(matrixMap[0][row][col] != gray && ((frog.posAtual.row == row)&&(frog.posAtual.col == col))){
-          return true;
-        }
-      }
-    }
-  }else{
-    for(int row=0; row<32; row++){
-      for(int col=1; col<7; col++){
-        if(matrixMap[1][row][col] == blue && ((frog.posAtual.row == row)&&(frog.posAtual.col == col))){
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
-}
-
-void froggerSetup(){
-  streetMode = true; // definicao do primeiro mapa como a rua
-  drawTerrain();
-  initializeFrog();
-  defineMatrixFaixa();
-  prepareTerrain();
-  beginTimeVariables();
-  drawOnLedMap('s');
-  score = 0;
-}
-
-void froggerLoop(){
-
-  if(newGame){
-    froggerSetup();
-    newGame = false;
-  }
-
   pixels.show();
-  if(streetMode){
-    movimentacoes(street, 's');
-  }else{
-    movimentacoes(river, 'r');
+  delay(4000);
+  froggerSetup();
+}
+
+bool faixaCanMove(tFaixa faixa){
+  if(millis()-faixa.lastMovementTime >= faixa.movementInterval){
+    return true;
   }
+  return false;
+}
+
+void moveElements(){
+  tFaixa *faixa;
+  char indiceColor;
+  switch(gameMode){
+    case STREET: faixa = street; indiceColor = 9; break;
+    case RIVER:  faixa = river ; indiceColor = 12; break;
+  }
+
+  for(char col=0; col<6; col++){
+    if(faixaCanMove(faixa[col])){
+      faixa[col].lastMovementTime = millis();
+      if(faixa[col].direction==RIGHT){
+        for(char row=31; row>=0; row--){
+          if(row!=0){
+            if(gameMode==RIVER){
+              if(((frog.posAtual.col==col+1)&&(frog.posAtual.row==row))&&(ledStates[pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col])]==faixa[col].colorIndice)){
+                if(frog.posAtual.row==31)
+                  frogDeath();
+                else
+                  frog.posAtual.row++;
+              }
+            }
+            ledStates[pgm_read_byte(&led_map[row][col+1])] = ledStates[pgm_read_byte(&led_map[row - 1][col+1])];
+            pixels.setPixelColor(pgm_read_byte(&led_map[row][col+1]), colors[ledStates[pgm_read_byte(&led_map[row - 1][col+1])]]);
+          }else{
+            if(faixa[col].qtdElementosAAdicionar>0){
+              ledStates[pgm_read_byte(&led_map[row][col+1])] = faixa[col].colorIndice;
+              pixels.setPixelColor(pgm_read_byte(&led_map[row][col+1]), colors[faixa[col].colorIndice]);
+              faixa[col].qtdElementosAAdicionar--;
+              if(faixa[col].qtdElementosAAdicionar==0)
+                faixa[col].qtdEspacosAAdicionar = faixa[col].space;
+            }else if(faixa[col].qtdEspacosAAdicionar>0){
+              ledStates[pgm_read_byte(&led_map[row][col+1])] = indiceColor;
+              pixels.setPixelColor(pgm_read_byte(&led_map[row][col+1]), colors[indiceColor]);
+              faixa[col].qtdEspacosAAdicionar--;
+              if(faixa[col].qtdEspacosAAdicionar==0)
+                faixa[col].qtdElementosAAdicionar = faixa[col].tamElements;
+            }
+          }
+        }
+      }else if(faixa[col].direction==LEFT){
+        for(char row=0; row<32; row++){
+          if(row!=31){
+            if(gameMode==RIVER){
+              if(((frog.posAtual.col==col+1)&&(frog.posAtual.row==row))&&(ledStates[pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col])]==faixa[col].colorIndice)){
+                if(frog.posAtual.row==0)
+                  frogDeath();
+                else
+                  frog.posAtual.row--;;
+              }
+            }
+            ledStates[pgm_read_byte(&led_map[row][col+1])] = ledStates[pgm_read_byte(&led_map[row + 1][col+1])];
+            pixels.setPixelColor(pgm_read_byte(&led_map[row][col+1]), colors[ledStates[pgm_read_byte(&led_map[row + 1][col+1])]]);
+          }else{
+            if(faixa[col].qtdElementosAAdicionar>0){
+              ledStates[pgm_read_byte(&led_map[row][col+1])] = faixa[col].colorIndice;
+              pixels.setPixelColor(pgm_read_byte(&led_map[row][col+1]), colors[faixa[col].colorIndice]);
+              faixa[col].qtdElementosAAdicionar--;
+              if(faixa[col].qtdElementosAAdicionar==0)
+                faixa[col].qtdEspacosAAdicionar = faixa[col].space;
+            }else if(faixa[col].qtdEspacosAAdicionar>0){
+              ledStates[pgm_read_byte(&led_map[row][col+1])] = indiceColor;
+              pixels.setPixelColor(pgm_read_byte(&led_map[row][col+1]), colors[indiceColor]);
+              faixa[col].qtdEspacosAAdicionar--;
+              if(faixa[col].qtdEspacosAAdicionar==0)
+                faixa[col].qtdElementosAAdicionar = faixa[col].tamElements;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void verificaDerrota(){
+  if(frog.posAtual.col!=0&&frog.posAtual.col!=7){
+    if(gameMode == STREET){
+      if(ledStates[pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col])]!=9)
+        frogDeath();
+    }else if(gameMode == RIVER){
+      if(ledStates[pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col])]==12)
+        frogDeath();
+    }
+  }
+}
+
+void froggerSetup() {
+  gameMode = STREET;
+  score = 0;
+  beginFrog();
+  defineMap();
+  initializeArrays();
+  naoSeiQualNomeColoco();
+  naoSeiQualNomeColoco2();
+  Serial.println("Frogger Setup");
+}
+
+void froggerLoop() {
+  // drawOnPixels(gameMode);
+  defineMap();
+
+  // movimento dos carros
+  moveElements();
 
   if(frogCanMove()){
     frog_movement();
-    frog.lastMovementTimeFrogger = millis();
   }
 
-  if(verificaDerrota(streetMode)){
-    //printar derrota
-    for(char i=frog.posAtual.row-1; i<=frog.posAtual.row+1; i++){
-      for(char j=frog.posAtual.col-1; j<=frog.posAtual.col+1; j++)
-      pixels.setPixelColor(led_map[i][j], red);
-    }
-    pixels.show();
-    delay(3000);
-    newGame = true;
-  }
+  verificaDerrota();
+
+  drawFrogOnMap();
+
+  //Serial.println("Frogger Loop");
+  pixels.show();
 }
