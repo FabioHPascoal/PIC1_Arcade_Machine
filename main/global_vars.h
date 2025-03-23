@@ -11,7 +11,7 @@ enum Direction {DOWN, UP, LEFT, RIGHT};
 ///////////////////// GENERAL VARIABLES /////////////////////
 
 // CONSTANTS
-constexpr float BRIGHTNESS = 0.05;
+constexpr float BRIGHTNESS = 0.1;
 constexpr int NUM_PIXELS = 256;
 
 // Lenth Constants
@@ -33,7 +33,7 @@ constexpr uint8_t ssegClk = 4;
 
 // Colors (declaradas como `extern`, definidas no `.cpp`)
 extern uint32_t red, green, blue, white, black, yellow, cyan, magenta, orange, gray, emerald, brown;
-extern const uint32_t colors[12];
+extern const uint32_t colors[13];
 
 // Lookup Table (armazenada em PROGMEM)
 extern const byte led_map[32][8] PROGMEM;
@@ -94,5 +94,42 @@ extern tFrog frog;
 extern tFaixa street[6];
 extern tFaixa river[6];
 extern bool newGame;
+
+///////////////////// SNAKE VARIABLES /////////////////////
+
+// GLOBAL VARIABLES
+
+extern uint8_t turningPointCount;
+
+struct TurningPoint {
+  uint8_t row;       // Linha onde a mudança ocorreu
+  uint8_t col;       // Coluna onde a mudança ocorreu
+  Direction newDir;  // Nova direção que a cabeça passou a ter
+};
+
+typedef struct
+{
+  byte row;
+  byte col;
+}Position;
+
+typedef struct
+{
+  Position head;
+  Position tail;
+  Direction headDir;
+  Direction tailDir;
+  TurningPoint turningPoints[50];
+  uint8_t turningPointCount;
+}Snake;
+
+
+extern Snake snake;
+
+//CONSTANTS 
+extern const unsigned long snakeMovementInterval;
+extern unsigned long lastAutoTime;
+extern bool restarting;
+extern unsigned long gameOverTime;
 
 #endif

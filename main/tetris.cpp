@@ -1,5 +1,6 @@
 #include "tetris.h"
 #include "global_vars.h"
+#include "aux_functions.h"
 
 bool check_collision(int rowInc, int colInc) {
   for (byte pixel = 0; pixel < 4; pixel++) {
@@ -94,6 +95,20 @@ void process_completed_lines(byte lowRow, byte highRow) {
   }
 }
 
+void gameOverTetris() {
+  // Piscar LEDs vermelhos
+  for (int i = 0; i < 3; i++) {
+    pixels.fill(red);
+    pixels.show();
+    delay(150);
+    pixels.clear();
+    pixels.show();
+    delay(150);
+  }
+
+  resetArduino();
+}
+
 void descend_tetromino() {
   if (!check_collision(1, 0)) {
     move_tetromino(DOWN);
@@ -111,6 +126,10 @@ void descend_tetromino() {
 
       if (row > highRow) highRow = row;
       if (row < lowRow) lowRow = row;
+    }
+
+    if (lowRow == 1) {
+      gameOverTetris();
     }
 
     process_completed_lines(lowRow, highRow);

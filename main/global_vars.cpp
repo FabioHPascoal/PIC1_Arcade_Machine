@@ -26,10 +26,11 @@ uint32_t orange  = adjustBrightness(255, 120,   0, BRIGHTNESS);
 uint32_t gray    = adjustBrightness( 0,   0,    0, BRIGHTNESS);
 uint32_t emerald = adjustBrightness( 60, 255, 100, BRIGHTNESS);
 uint32_t brown   = adjustBrightness( 66,  38,   0, BRIGHTNESS);
+uint32_t lowBrightnessCyan = adjustBrightness(  0,   0, 255, BRIGHTNESS/10);
 
 // Array com as cores criadas
                             //-0------1------2-----3------4-------5-----6------7-------8-----9-------10------11
-const uint32_t colors[12] = {black, yellow, cyan, blue, orange, green, red, magenta, white, gray, emerald, brown};
+const uint32_t colors[13] = {black, yellow, cyan, blue, orange, green, red, magenta, white, gray, emerald, brown, lowBrightnessCyan};
 
 // Lookup Tables armazenadas na Flash (PROGMEM)
 const byte led_map[32][8] PROGMEM = {
@@ -99,7 +100,7 @@ const char tetrominoRotations[7][4][4][2] PROGMEM {
 };
 
 
-//FROGGER
+//Frogger Variables
 
 Mode gameMode = STREET;
 tFrog frog = {{matrixNumRow/2, 0}, 0, 0, 80}; //ainda precisa inicializar as variáveis de tempo do frog
@@ -125,3 +126,13 @@ tFaixa river[6] = {
 };
 
 bool newGame = true;
+
+//Snake Variables
+
+Snake snake = {{18,4}, {18,4}, RIGHT, RIGHT, {}, 0}; // Cabeça e cauda iguais
+
+//Constantes de Snake
+const unsigned long snakeMovementInterval = 200;
+unsigned long lastAutoTime = 0;
+bool restarting = false;
+unsigned long gameOverTime = 0;

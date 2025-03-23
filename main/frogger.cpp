@@ -2,7 +2,6 @@
 #include "global_vars.h"
 
 void defineMap(){
-  
   for(char row=0; row<32; row++){
     for(char col=0; col<8; col++){
       if(col==0||col==7){
@@ -11,7 +10,6 @@ void defineMap(){
       }
     }
   }
-  
 }
 
 char defineIndice(Direction direction){
@@ -43,7 +41,7 @@ void initializeArrays(){
     indiceCor = 9;
   }else if(gameMode==RIVER){
     faixa = river;
-    indiceCor = 3;
+    indiceCor = 12;
   }
 
   for(char line=0; line<6; line++){ //colunas do mapa vulfo linhas da rua ou do rio
@@ -126,6 +124,7 @@ bool frogCanMove(){
 
 void moveFrog(Direction direction){
   pixels.setPixelColor(pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col]), colors[ledStates[pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col])]]);
+  Serial.println(ledStates[pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col])]);
   switch(direction){
     case LEFT : frog.posAtual.row--; break;
     case RIGHT: frog.posAtual.row++; break;
@@ -204,7 +203,7 @@ void frog_movement(){
 }
 
 void drawFrogOnMap(){
-  pixels.setPixelColor(pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col]), emerald);
+  pixels.setPixelColor(pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col]), red);
 }
 
 void frogDeath(){
@@ -233,7 +232,7 @@ void moveElements(){
   char indiceColor;
   switch(gameMode){
     case STREET: faixa = street; indiceColor = 9; break;
-    case RIVER:  faixa = river ; indiceColor = 3; break;
+    case RIVER:  faixa = river ; indiceColor = 12; break;
   }
 
   for(char col=0; col<6; col++){
@@ -308,7 +307,7 @@ void verificaDerrota(){
       if(ledStates[pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col])]!=9)
         frogDeath();
     }else if(gameMode == RIVER){
-      if(ledStates[pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col])]==3)
+      if(ledStates[pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col])]==12)
         frogDeath();
     }
   }
@@ -334,7 +333,6 @@ void froggerLoop() {
 
   if(frogCanMove()){
     frog_movement();
-    Serial.println("Frog moved");
   }
 
   verificaDerrota();
