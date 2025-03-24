@@ -103,7 +103,7 @@ const char tetrominoRotations[7][4][4][2] PROGMEM {
 //Frogger Variables
 
 Mode gameMode = STREET;
-tFrog frog = {{matrixNumRow/2, 0}, 0, 0, 80}; //ainda precisa inicializar as variáveis de tempo do frog
+tFrog frog = {{matrixNumRow/2, 0}, 0, 0, 80}; //variavel do tipo sapo com as declaracoes iniciais
 
 // Matriz da rua
 tFaixa street[6] = {

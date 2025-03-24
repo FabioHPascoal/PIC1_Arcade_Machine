@@ -1,17 +1,26 @@
 #include "frogger.h"
 #include "global_vars.h"
 
+
+/**
+ * @brief funcao que desenha o mapa (apenas a ultima e a primeira linha)
+ */
 void defineMap(){
   for(char row=0; row<32; row++){
     for(char col=0; col<8; col++){
       if(col==0||col==7){
-        ledStates[pgm_read_byte(&led_map[row][col])] = 5; //verificar porque não é necessário ler a ledMAP sem precisar usar pgm_read_byte 
+        ledStates[pgm_read_byte(&led_map[row][col])] = 5;
         pixels.setPixelColor(pgm_read_byte(&led_map[row][col]), colors[5]);
       }
     }
   }
 }
 
+/**
+ * @brief funcao auxiliar da funcao initializeArrays para definir o valor de i no primeiro parametro da funcao for
+ * @param direction direcao dos carros de uma linha da rua ou rio
+ * @return 0 se os carros/troncos estiverem indo para a direita e 31 se os carros/troncos estiverem indo para a esquerda
+ */
 char defineIndice(Direction direction){
   if(direction==RIGHT)
     return 0;
@@ -19,6 +28,11 @@ char defineIndice(Direction direction){
     return 31;
 }
 
+/**
+ * @brief funcao auxiliar da funcao initializeArrays para definir o limite de i no segundo parametro da funcao for
+ * @param direction direcao dos carros de uma linha da rua ou rio
+ * @return 32 se os carros/troncos estiverem indo para a direita e -1 se os carros/troncos estiverem indo para a esquerda
+ */
 char defineLimit(Direction direction){
   if(direction==RIGHT)
     return 32;
@@ -26,6 +40,11 @@ char defineLimit(Direction direction){
     return -1;
 }
 
+/**
+ * @brief funcao auxiliar da funcao initializeArrays para definir o incremento de i no terceiro parametro da funcao for
+ * @param direction direcao dos carros de uma linha da rua ou rio
+ * @return 1 se os carros/troncos estiverem indo para a direita e -1 se os carros/troncos estiverem indo para a esquerda
+ */
 char defineIncremento(Direction direction){
   if(direction==RIGHT)
     return 1;
@@ -33,6 +52,10 @@ char defineIncremento(Direction direction){
     return -1;
 }
 
+
+/**
+ * @brief funcap que define a posição inicial dos carros/troncos de uma linha da rua/rio de acordo com suas especificacoes
+ */
 void initializeArrays(){
   tFaixa *faixa;
   char indiceCor;
@@ -44,7 +67,7 @@ void initializeArrays(){
     indiceCor = 12;
   }
 
-  for(char line=0; line<6; line++){ //colunas do mapa vulfo linhas da rua ou do rio
+  for(char line=0; line<6; line++){ 
     char espacamentoAcolocar = faixa[line].space;
     char tamElementosAColocar = 0;
     for(char rowMap=defineIndice(faixa[line].direction); rowMap!=defineLimit(faixa[line].direction); rowMap+=defineIncremento(faixa[line].direction)){
@@ -65,12 +88,18 @@ void initializeArrays(){
   }
 }
 
-void naoSeiQualNomeColoco(){ //função que define que inicialmente os carros ou troncos vao ter que ser gerados nas extremidades do mapa
+/**
+ * @brief funcao que define quantas unidades (em leds) de troncos/carros é necessario adicionar em uma linha iniciamente
+ */
+void naoSeiQualNomeColoco(){
+  // todas as linhas de rua/rio vao comecar a serem movimentadas no inicio do jogo
+  // essa funcao defini a quantidade de leds que deverao ser acessos quando a linha de rua/rio andar até adicionar um carro/tronco inteiro
+  // por exemplo, se o tamanho do carro/tronco da linha for 3, os proximos 3 leds que forem adicionados pelo andar da rua/rio serão da cor do carro/tronco
   char line;
   for(char i=0; i<2; i++){
     if(i==0){
       for(line=0; line<6; line++){
-        street[line].qtdElementosAAdicionar = street[line].tamElements;
+        street[line].qtdElementosAAdicionar = street[line].tamElements; //nesse caso, 
       }
     }else{
       for(line=0; line<6; line++){
@@ -80,6 +109,9 @@ void naoSeiQualNomeColoco(){ //função que define que inicialmente os carros ou
   }
 }
 
+/**
+ * @brief funcao que define que não havera unidades de espacamento entre carros a serem adicionadas no inicio do movimento das linha de rua/rio
+ */
 void naoSeiQualNomeColoco2(){
   char line;
   for(char i=0; i<2; i++){
@@ -95,23 +127,18 @@ void naoSeiQualNomeColoco2(){
   }
 }
 
-uint32_t getColorInColors(char indice){
-  return colors[indice];
-} 
-
-// void drawOnPixels(Mode gameMode){
-//   for(int row=0; row<32; row++){
-//     for(int col=0; col<8; col++){
-//       pixels.setPixelColor(pgm_read_byte(&led_map[row][col]), colors[ledStates[pgm_read_byte(&led_map[row][col])]]);
-//     }
-//   }
-// }
-
+/**
+ * @brief funcao que inicializa o frog com os mesmos valores da variavel em global_vars
+ */
 void beginFrog(){
   frog = {{matrixNumRow/2, 0}, 0, 0, 80};
   frog.lastMovementTime = millis() - frog.movementInterval;
 }
 
+/**
+ * @brief funcao que verifica se o sapo pode se mover de acordo com o intervalo de movimento e o ultimo momento em que ele se moveu
+ * @return true se poder e false se nao
+ */
 bool frogCanMove(){
   unsigned long currentTime = millis();
 
@@ -122,6 +149,10 @@ bool frogCanMove(){
   return false;
 }
 
+/**
+ * @brief funcao que movimenta o frog
+ * @param direction direcao do movimento
+ */
 void moveFrog(Direction direction){
   pixels.setPixelColor(pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col]), colors[ledStates[pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col])]]);
   Serial.println(ledStates[pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col])]);
@@ -135,6 +166,10 @@ void moveFrog(Direction direction){
   frog.lastMovementTime = millis();
 }
 
+/**
+ * @brief funcao que verifica se o sapo se colidiu com alguma extremidade do mapa
+ * @param direction direcao da colisao
+ */
 bool verficaColisao(Direction direction){
   switch(direction){
     case LEFT:  if(frog.posAtual.row == 0 ) return true; break;
@@ -145,11 +180,17 @@ bool verficaColisao(Direction direction){
   return false;
 }
 
+/**
+ * @brief funcao que muda o frog de mapa definindo a linha dele como a primeira e mantendo a posicao da coluna
+ */
 void ReposicionaFrog(){
   frog.posAtual.col = 0;
   frog.posMaxY = 0;
 }
 
+/**
+ * @brief funcao que muda o modo de jogo
+ */
 void changeGameMode(){
   switch(gameMode){
     case STREET: gameMode = RIVER ; break;
@@ -159,10 +200,16 @@ void changeGameMode(){
   naoSeiQualNomeColoco();
 }
 
+/**
+ * @brief funcao que incrementa a pontuacao do jogador
+ */
 void IncreaseScore(unsigned char value){
   score += value;
 }
 
+/**
+ * @brief funcoa que verifica a direcao de movimento do frog e o movimenta se ele estiver em uma posicoa que pode ser movimentado
+ */
 void frog_movement(){
   leftState  = !digitalRead(leftStick );
   rightState = !digitalRead(rightStick);
@@ -202,10 +249,16 @@ void frog_movement(){
   }
 }
 
+/**
+ * @brief funcao que desenha o sapo na matriz de led
+ */
 void drawFrogOnMap(){
   pixels.setPixelColor(pgm_read_byte(&led_map[frog.posAtual.row][frog.posAtual.col]), red);
 }
 
+/**
+ * @brief funcao que desenha a morte do sapo e inicia o jogo mais uma vez apos 4 segundos
+ */
 void frogDeath(){
   for(char row=frog.posAtual.row-1; row<=frog.posAtual.row+1; row++){
     for(char col=frog.posAtual.col-1; col<=frog.posAtual.col+1; col++){
@@ -220,6 +273,9 @@ void frogDeath(){
   froggerSetup();
 }
 
+/**
+ * @brief funcao que verifica se os carros/troncos de uma rua/rio podem se morver uma unidade
+ */
 bool faixaCanMove(tFaixa faixa){
   if(millis()-faixa.lastMovementTime >= faixa.movementInterval){
     return true;
@@ -227,6 +283,9 @@ bool faixaCanMove(tFaixa faixa){
   return false;
 }
 
+/**
+ * @brief funcao que move os elementos (carros/troncos) de uma linha da rua/rio
+ */
 void moveElements(){
   tFaixa *faixa;
   char indiceColor;
@@ -301,6 +360,9 @@ void moveElements(){
   }
 }
 
+/**
+ * @brief funcao que verifica se o jogador perdeu
+ */
 void verificaDerrota(){
   if(frog.posAtual.col!=0&&frog.posAtual.col!=7){
     if(gameMode == STREET){
@@ -313,6 +375,9 @@ void verificaDerrota(){
   }
 }
 
+/**
+ * @brief funcao que inicializa o jogo frogger
+ */
 void froggerSetup() {
   gameMode = STREET;
   score = 0;
@@ -324,6 +389,9 @@ void froggerSetup() {
   Serial.println("Frogger Setup");
 }
 
+/**
+ * @brief funcao que roda o jogo
+ */
 void froggerLoop() {
   // drawOnPixels(gameMode);
   defineMap();
