@@ -7,10 +7,7 @@ clássicos programados a partir de um Arduino Uno, de modo que seja possível al
 ## Descrição detalhada
 
 O presente projeto busca descrever o funcionamento de uma máquina fliperama simplificada, com três jogos programados em sua memória: Tetris, Snake, e Frogger. A máquina deve contar com um Arduino Uno, ou qualquer outro microcontrolador com memória e pinos suficientes para executar o programa, uma matriz de leds RGBs 8x32, funcionando como monitor, um joystick para controle do jogador, dois botões para uso no jogo Tetris, pois este exige a rotação das peças em sentido horário e anti-horário, um switch tipo gangorra de três estados, para seleção entre os três jogos, e um display de 7 segmentos de quatro dígitos, para a exibição da pontuação do usuário. O esquemático do projeto é exibido a seguir, contendo todos os componentes a serem utilizados, bem como suas conexões.
-
-## Vídeo do projeto em execução
-
-https://www.youtube.com/watch?v=Vh4_vdK3K6M
+![Artboard 1](https://github.com/user-attachments/assets/4313e3f8-8257-41df-9569-e632f4bc6690)
 
 ## Componentes utilizados
 
