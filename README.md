@@ -1,4 +1,4 @@
-
+<img width="730" alt="Artboard 1" src="https://github.com/user-attachments/assets/baeeef0e-dbd0-4100-8e96-491202fc626e" />
 # Arcade Machine
 
 A ideia central do projeto é construir uma máquina fliperama simplificada, com três jogos
@@ -7,7 +7,7 @@ clássicos programados a partir de um Arduino Uno, de modo que seja possível al
 ## Descrição detalhada
 
 O presente projeto busca descrever o funcionamento de uma máquina fliperama simplificada, com três jogos programados em sua memória: Tetris, Snake, e Frogger. A máquina deve contar com um Arduino Uno, ou qualquer outro microcontrolador com memória e pinos suficientes para executar o programa, uma matriz de leds RGBs 8x32, funcionando como monitor, um joystick para controle do jogador, dois botões para uso no jogo Tetris, pois este exige a rotação das peças em sentido horário e anti-horário, um switch tipo gangorra de três estados, para seleção entre os três jogos, e um display de 7 segmentos de quatro dígitos, para a exibição da pontuação do usuário. O esquemático do projeto é exibido a seguir, contendo todos os componentes a serem utilizados, bem como suas conexões.
-![Artboard 1](https://github.com/user-attachments/assets/4313e3f8-8257-41df-9569-e632f4bc6690)
+<img width="730" alt="Artboard 1" src="https://github.com/user-attachments/assets/9c6ad199-b246-4b2a-a743-cf1889636713" />
 
 ## Componentes utilizados
 
@@ -39,4 +39,5 @@ Para pontuação do jogador nos três jogos, foi utilizado um display de 7 segme
 ## Dependências
 
 Adafruit NeoPixel - Versão 1.12.5, para controle da matriz de leds;
+
 TM1637 - Versão 1.2.0, para controle do display de 7 segmentos de 4 dígitos.
